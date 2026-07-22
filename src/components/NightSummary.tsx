@@ -8,7 +8,7 @@ import CountUp from './CountUp'
 import WeatherIcon from './WeatherIcon'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
-const BADGES = ['TODAY', '明日', '明後日']
+const BADGES = ['今日', '明日', '明後日']
 
 function fmtDiff(v: number | null, unit: string): string | null {
   if (v === null) return null
@@ -23,35 +23,30 @@ function DiffTag({ v, unit }: { v: number | null; unit: string }) {
   return <span className={`mdiff ${cls}`}>{t}</span>
 }
 
-function Badge({
-  kind,
-  level,
+function Col({
   label,
   value,
   diff,
   unit,
 }: {
-  kind: 'temp' | 'humid'
-  level: 'hi' | 'lo'
   label: string
   value: number | null
   diff: number | null
   unit: string
 }) {
   return (
-    <div className="wbcol">
-      <div className={`wbadge ${level} ${kind}`}>
-        <span className="wb-k">{label}</span>
-        <span className="wb-v">
-          <CountUp value={value} />
-          <small>{unit}</small>
-        </span>
-      </div>
+    <div className="mcol">
+      <span className="mk">{label}</span>
+      <span className="mv">
+        <CountUp value={value} />
+        <small>{unit}</small>
+      </span>
       <DiffTag v={diff} unit={unit} />
     </div>
   )
 }
 
+// 枠全体をカラー表示（気温=暖色 / 湿度=寒色）。中は high | 区切り線 | low。
 function Metric({
   kind,
   hi,
@@ -72,9 +67,10 @@ function Metric({
   return (
     <div className={`metric ${kind}`}>
       <div className="metric-head">{head}</div>
-      <div className="badge-pair">
-        <Badge kind={kind} level="hi" label="HIGH" value={hi} diff={hiDiff} unit={unit} />
-        <Badge kind={kind} level="lo" label="LOW" value={lo} diff={loDiff} unit={unit} />
+      <div className="metric-pair">
+        <Col label="HIGH" value={hi} diff={hiDiff} unit={unit} />
+        <span className="metric-sep" aria-hidden="true" />
+        <Col label="LOW" value={lo} diff={loDiff} unit={unit} />
       </div>
     </div>
   )

@@ -105,9 +105,7 @@ export default function App() {
                 <h2>今夜の推移</h2>
               </div>
             </Reveal>
-            <Reveal className="reveal-chart">
-              <NightChart series={derived.night} />
-            </Reveal>
+            <NightChart series={derived.night} />
 
             <Reveal>
               <div className="sec-head">

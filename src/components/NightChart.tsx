@@ -81,7 +81,7 @@ export default function NightChart({ series }: { series: NightSeries }) {
   const humTicks = fourTicks(hLo, hHi)
 
   return (
-    <section className="card chart-card" aria-label="今夜の気温・湿度の推移">
+    <section className="card chart-card chart-rise" aria-label="今夜の気温・湿度の推移">
       <div className="chart-legend">
         <span className="lg temp">
           <span className="dot temp" />気温 ℃
@@ -149,14 +149,17 @@ export default function NightChart({ series }: { series: NightSeries }) {
           />
           <Tooltip content={<WxTooltip />} cursor={{ stroke: AXIS_TXT, strokeDasharray: '3 3' }} />
 
-          {/* 塗り（線は Line 側で描くので stroke なし） */}
+          {/* 塗り（線は Line 側で描くので stroke なし）。下から立ち上がるように伸びる。 */}
           <Area
             yAxisId="humid"
             type="monotone"
             dataKey="humidity"
             stroke="none"
             fill="url(#humidFill)"
-            isAnimationActive={false}
+            isAnimationActive
+            animationBegin={150}
+            animationDuration={1000}
+            animationEasing="ease-out"
             connectNulls
           />
           <Area
@@ -165,11 +168,14 @@ export default function NightChart({ series }: { series: NightSeries }) {
             dataKey="temp"
             stroke="none"
             fill="url(#tempFill)"
-            isAnimationActive={false}
+            isAnimationActive
+            animationBegin={150}
+            animationDuration={1000}
+            animationEasing="ease-out"
             connectNulls
           />
 
-          {/* 発光する曲線 */}
+          {/* 発光する曲線（左から描かれる） */}
           <Line
             yAxisId="humid"
             type="monotone"
@@ -180,7 +186,10 @@ export default function NightChart({ series }: { series: NightSeries }) {
             dot={false}
             activeDot={{ r: 4.5, fill: HUMID, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
-            isAnimationActive={false}
+            isAnimationActive
+            animationBegin={0}
+            animationDuration={1150}
+            animationEasing="ease-in-out"
             style={{ filter: 'url(#lineGlow)' }}
           />
           <Line
@@ -193,7 +202,10 @@ export default function NightChart({ series }: { series: NightSeries }) {
             dot={false}
             activeDot={{ r: 4.5, fill: TEMP, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
-            isAnimationActive={false}
+            isAnimationActive
+            animationBegin={0}
+            animationDuration={1150}
+            animationEasing="ease-in-out"
             style={{ filter: 'url(#lineGlow)' }}
           />
         </ComposedChart>
