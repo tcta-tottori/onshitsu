@@ -1,6 +1,6 @@
 // ① ヒーロー：横スワイプで今日/明日/明後日の「夜（19〜翌6時）」サマリー。
 // high/low は色付きバッジ（センター合わせ）＋数字はカウントアップ、前夜との差を下に。
-import { useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Droplets, Thermometer } from 'lucide-react'
 import { weatherFromCode } from '../lib/weatherCode'
 import type { NightCard } from '../lib/derive'
@@ -77,9 +77,17 @@ function Metric({
   )
 }
 
-function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
+function HeroCard({ card, rel, active }: { card: NightCard; rel: number; active: boolean }) {
   const { label } = weatherFromCode(card.weatherCode)
   const dow = card.dateObj.getDay()
+  // スワイプでこのカードがアクティブになるたびに play を増やし、
+  // 数字（カウントアップ）とグラフ（曲線）を再マウントしてアニメを再生する。
+  const [play, setPlay] = useState(0)
+  const wasActive = useRef(active)
+  useEffect(() => {
+    if (active && !wasActive.current) setPlay((p) => p + 1)
+    wasActive.current = active
+  }, [active])
   return (
     <section className="hero" aria-label={`${BADGES[rel] ?? ''}のサマリー`}>
       <div className="hero-head">
@@ -98,7 +106,7 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
         </div>
       </div>
 
-      <div className="hero-metrics">
+      <div className="hero-metrics" key={`m${play}`}>
         <Metric
           kind="temp"
           hi={card.tempHigh}
@@ -131,7 +139,7 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
 
       <div className="hero-chart">
         <div className="hero-chart-head">夜の推移</div>
-        <NightChart series={card.series} compact />
+        <NightChart key={`c${play}`} series={card.series} compact />
       </div>
     </section>
   )
@@ -152,7 +160,7 @@ export default function NightSummary({ cards }: { cards: NightCard[] }) {
     <div className="hero-swipe">
       <div className="hero-track" ref={trackRef} onScroll={onScroll}>
         {cards.map((c, i) => (
-          <HeroCard key={i} card={c} rel={i} />
+          <HeroCard key={i} card={c} rel={i} active={i === active} />
         ))}
       </div>
       {cards.length > 1 && (
