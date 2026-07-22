@@ -13,6 +13,26 @@ export const TOTTORI_AREA_CODE = '310000'
 /** 鳥取市中心部の AMeDAS 観測所ID */
 export const TOTTORI_AMEDAS_ID = '69122'
 
+// --- 公式予報JSON: 発表（更新）時刻 ---
+
+/**
+ * 気象庁公式予報JSONの発表時刻（reportDatetime）を返す。
+ * = 気象庁がその予報データを更新した時刻。取得できなければ null。
+ */
+export async function fetchJmaReportDatetime(
+  areaCode: string = TOTTORI_AREA_CODE,
+  signal?: AbortSignal,
+): Promise<Date | null> {
+  const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${areaCode}.json`
+  const res = await fetch(url, { signal })
+  if (!res.ok) throw new Error(`気象庁公式JSONの取得に失敗（HTTP ${res.status}）`)
+  const json = await res.json()
+  const rd: string | undefined = json?.[0]?.reportDatetime
+  if (!rd) return null
+  const d = new Date(rd)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 // --- 公式予報JSON: 降水確率 ---
 
 export interface JmaPop {

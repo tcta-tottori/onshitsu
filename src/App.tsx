@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
+import { fetchJmaReportDatetime } from './api/jma'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNightCards, deriveNightForecast } from './lib/derive'
 import { adviseAircon } from './lib/aircon'
@@ -15,18 +16,25 @@ type LoadState =
   | { status: 'ready'; data: WeatherData }
   | { status: 'error'; message: string }
 
-/** 気象データの取得時刻を "M/D HH:MM" で表す（データの更新目安） */
+/** 気象庁データの発表（更新）時刻を日本時間で "M/D HH:MM" と表す */
 function fmtStamp(d: Date): string {
-  const m = d.getMonth() + 1
-  const day = d.getDate()
-  const hh = String(d.getHours()).padStart(2, '0')
-  const mm = String(d.getMinutes()).padStart(2, '0')
-  return `${m}/${day} ${hh}:${mm}`
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d)
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
+  return `${get('month')}/${get('day')} ${get('hour')}:${get('minute')}`
 }
 
 export default function App() {
   const [location, setLocation] = useState<Location>(DEFAULT_LOCATION)
   const [state, setState] = useState<LoadState>({ status: 'loading' })
+  // 気象庁公式予報の発表（更新）時刻。取得できなければ非表示。
+  const [dataTime, setDataTime] = useState<Date | null>(null)
   // 再取得トリガ
   const [reloadKey, setReloadKey] = useState(0)
   // now は再取得のたびに更新（夜ウィンドウ判定用）
@@ -46,6 +54,20 @@ export default function App() {
             ? e.message
             : 'ネットワークに接続できませんでした。通信環境を確認して再取得してください。'
         setState({ status: 'error', message })
+      })
+    return () => ctrl.abort()
+  }, [location, reloadKey])
+
+  // 気象庁公式予報の発表時刻を取得（添え物。失敗しても主軸表示は壊さない）。
+  useEffect(() => {
+    const ctrl = new AbortController()
+    setDataTime(null)
+    fetchJmaReportDatetime(undefined, ctrl.signal)
+      .then((d) => {
+        if (!ctrl.signal.aborted && d) setDataTime(d)
+      })
+      .catch(() => {
+        /* 取得失敗時はスタンプ非表示のまま */
       })
     return () => ctrl.abort()
   }, [location, reloadKey])
@@ -71,8 +93,8 @@ export default function App() {
 
   return (
     <div className="app">
-      {state.status === 'ready' && (
-        <div className="data-stamp">DATA:{fmtStamp(state.data.fetchedAt)}</div>
+      {state.status === 'ready' && dataTime && (
+        <div className="data-stamp">DATA:{fmtStamp(dataTime)}</div>
       )}
       <header className="appbar">
         <div className="brand">
