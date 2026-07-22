@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { fetchJmaReportDatetime } from './api/jma'
+import { fetchSwitchbotHistory, type SwitchbotReading } from './api/switchbot'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNightCards, deriveNightForecast } from './lib/derive'
 import { adviseAircon } from './lib/aircon'
@@ -9,6 +10,7 @@ import NightSummary from './components/NightSummary'
 import ForecastTable from './components/ForecastTable'
 import LocationPicker from './components/LocationPicker'
 import AirconCard from './components/AirconCard'
+import IndoorCard from './components/IndoorCard'
 import Reveal from './components/Reveal'
 
 type LoadState =
@@ -35,6 +37,8 @@ export default function App() {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   // 気象庁公式予報の発表（更新）時刻。取得できなければ非表示。
   const [dataTime, setDataTime] = useState<Date | null>(null)
+  // 自宅（SwitchBot）の温湿度時系列。未設定・取得失敗なら空でカード非表示。
+  const [indoor, setIndoor] = useState<SwitchbotReading[]>([])
   // 再取得トリガ
   const [reloadKey, setReloadKey] = useState(0)
   // now は再取得のたびに更新（夜ウィンドウ判定用）
@@ -71,6 +75,19 @@ export default function App() {
       })
     return () => ctrl.abort()
   }, [location, reloadKey])
+
+  // 自宅（SwitchBot）の温湿度履歴を取得（添え物。未設定・失敗ならカード非表示）。
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchSwitchbotHistory(ctrl.signal)
+      .then((rows) => {
+        if (!ctrl.signal.aborted) setIndoor(rows)
+      })
+      .catch(() => {
+        /* 未設定・取得失敗時はカードを出さない */
+      })
+    return () => ctrl.abort()
+  }, [reloadKey])
 
   const derived = useMemo(() => {
     if (state.status !== 'ready') return null
@@ -135,6 +152,12 @@ export default function App() {
             <Reveal>
               <NightSummary cards={derived.cards} now={nowRef.current} />
             </Reveal>
+
+            {indoor.length > 0 && (
+              <Reveal>
+                <IndoorCard readings={indoor} />
+              </Reveal>
+            )}
 
             {derived.aircon.available && (
               <Reveal>
