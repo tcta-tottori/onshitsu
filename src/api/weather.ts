@@ -52,7 +52,7 @@ export async function fetchWeather(loc: Location, signal?: AbortSignal): Promise
     models: 'jma_seamless',
     timezone: 'Asia/Tokyo',
     forecast_days: '7',
-    // 深夜〜早朝（6時前）は今夜ウィンドウが前日17時始まりになる。
+    // 深夜〜早朝（6時前）は今夜ウィンドウが前日19時始まりになる。
     // 前日分を含めておかないと夜の前半(17〜23時)が欠けるため past_days=1 を付与。
     past_days: '1',
   })

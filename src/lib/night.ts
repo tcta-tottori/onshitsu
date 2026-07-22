@@ -1,13 +1,13 @@
 // 「今夜」ウィンドウ算出ロジック
 //
-// - 現在が 6時以降        → 今夜 = 当日17:00 〜 翌日06:00
-// - 現在が 6時より前(0-5時) → 進行中の夜 = 前日17:00 〜 当日06:00
+// - 現在が 6時以降        → 今夜 = 当日19:00 〜 翌日06:00
+// - 現在が 6時より前(0-5時) → 進行中の夜 = 前日19:00 〜 当日06:00
 //
-// hourly の ISO 文字列（"2026-07-22T17:00" のような Asia/Tokyo ローカル時刻）を
-// この範囲で絞り込み、17,18,…,23,0,1,…,6 の順に並べる。
+// hourly の ISO 文字列（"2026-07-22T19:00" のような Asia/Tokyo ローカル時刻）を
+// この範囲で絞り込み、19,20,…,23,0,1,…,6 の順に並べる。
 
 export interface NightWindow {
-  /** 夜の開始日（17時が属する日）YYYY-MM-DD */
+  /** 夜の開始日（19時が属する日）YYYY-MM-DD */
   startDate: string
   /** 夜の終了日（06時が属する日）YYYY-MM-DD */
   endDate: string
@@ -41,12 +41,12 @@ export function getNightWindow(now: Date = new Date()): NightWindow {
   let start: Date
   let end: Date
   if (hour < 6) {
-    // 深夜〜早朝：進行中の夜 = 前日17時 〜 当日6時
-    start = atHour(now, -1, 17)
+    // 深夜〜早朝：進行中の夜 = 前日19時 〜 当日6時
+    start = atHour(now, -1, 19)
     end = atHour(now, 0, 6)
   } else {
-    // 6時以降：今夜 = 当日17時 〜 翌日6時
-    start = atHour(now, 0, 17)
+    // 6時以降：今夜 = 当日19時 〜 翌日6時
+    start = atHour(now, 0, 19)
     end = atHour(now, 1, 6)
   }
 

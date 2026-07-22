@@ -30,9 +30,7 @@ export default function NightSummary({
           <div className="hero-eyebrow">{locationName}</div>
           <h1 className="hero-title">今夜の気温と湿度</h1>
         </div>
-        <div className="hero-date">
-          {fmtDateRange(series.window.startDate)}・17時〜翌6時
-        </div>
+        <div className="hero-date">{fmtDateRange(series.window.startDate)}</div>
       </div>
 
       <div className="hero-metrics">

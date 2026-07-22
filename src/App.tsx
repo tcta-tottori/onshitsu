@@ -147,7 +147,7 @@ export default function App() {
             />
 
             <div className="sec-head">
-              <h2>今夜の推移（17時〜翌6時）</h2>
+              <h2>今夜の推移</h2>
             </div>
             <NightChart series={derived.night} />
 

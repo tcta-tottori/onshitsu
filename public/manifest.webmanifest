@@ -1,7 +1,7 @@
 {
   "name": "ONSHITSU — 今夜の気温×湿度",
   "short_name": "ONSHITSU",
-  "description": "今夜（17時〜翌6時）の気温と湿度に特化した天気予報。",
+  "description": "今夜の気温と湿度に特化した天気予報。",
   "start_url": "/onshitsu/",
   "scope": "/onshitsu/",
   "display": "standalone",
