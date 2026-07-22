@@ -1,5 +1,6 @@
-// エアコンのおすすめ設定カード（今日のカードの下）。
-import { Snowflake, Timer, Wind } from 'lucide-react'
+// エアコンのおすすめ設定カード（今日のカードの下）。エアコン温度は固定のため
+// タイマー時間のみ提示する。
+import { Timer, Wind } from 'lucide-react'
 import type { AirconAdvice } from '../lib/aircon'
 
 export default function AirconCard({ advice }: { advice: AirconAdvice }) {
@@ -19,15 +20,9 @@ export default function AirconCard({ advice }: { advice: AirconAdvice }) {
 
       {advice.shouldUse && (
         <div className="ac-reco">
-          <div className="ac-reco-item">
-            <Snowflake size={15} strokeWidth={2.2} />
-            <span className="ac-k">冷房</span>
-            <span className="ac-v">29℃</span>
-          </div>
-          <span className="ac-reco-sep" aria-hidden="true" />
-          <div className="ac-reco-item">
-            <Timer size={15} strokeWidth={2.2} />
-            <span className="ac-k">タイマー</span>
+          <div className="ac-reco-item single">
+            <Timer size={18} strokeWidth={2.2} />
+            <span className="ac-k">おすすめタイマー</span>
             <span className="ac-v">
               {advice.timerHours}
               <small>時間</small>
@@ -37,7 +32,7 @@ export default function AirconCard({ advice }: { advice: AirconAdvice }) {
       )}
 
       <p className="ac-detail">{advice.detail}</p>
-      <p className="ac-note">※就寝21時・起床5時を想定した、不快指数（体感）による目安です。</p>
+      <p className="ac-note">※就寝21時・起床4時を想定した、不快指数（体感）による目安です。</p>
     </section>
   )
 }

@@ -14,12 +14,12 @@ function thi(t: number, h: number): number {
 }
 
 const SET_HOUR = 21 // 就寝（セット）想定時刻
-const WAKE_HOUR = 5 // 快適に眠りたい終了時刻
+const WAKE_HOUR = 4 // 快適に眠りたい終了時刻（4時ごろまで快適ならOK）
 const COMFORT_THI = 75 // これ未満なら寝苦しくない目安
 const HOT_THI = 80 // これ以上はかなり蒸し暑い
 
-// 21,22,23,0,1,2,3,4,5 の並び
-const WINDOW_HOURS = [21, 22, 23, 0, 1, 2, 3, 4, 5]
+// 21,22,23,0,1,2,3,4 の並び
+const WINDOW_HOURS = [21, 22, 23, 0, 1, 2, 3, 4]
 
 export interface AirconAdvice {
   available: boolean
@@ -84,7 +84,7 @@ export function adviseAircon(points: NightPoint[]): AirconAdvice {
       maxThi,
       comfortLabel,
       headline: 'エアコンなしでも快適',
-      detail: '就寝〜朝5時ごろの体感は快適な見込みです。窓開けや扇風機でも眠れそう。',
+      detail: '就寝〜朝4時ごろの体感は快適な見込みです。窓開けや扇風機でも眠れそう。',
     }
   }
 
@@ -105,13 +105,13 @@ export function adviseAircon(points: NightPoint[]): AirconAdvice {
   }
   const offHour = offIdx >= 0 ? seq[offIdx].hour : WAKE_HOUR
   let timerHours = (offHour + 24 - SET_HOUR) % 24
-  if (timerHours === 0) timerHours = 8
-  timerHours = Math.min(8, Math.max(1, timerHours))
+  if (timerHours === 0) timerHours = 7
+  timerHours = Math.min(7, Math.max(1, timerHours))
 
   const headline = maxThi >= HOT_THI ? '蒸し暑い夜・エアコン推奨' : 'エアコン推奨'
   const detail =
-    `冷房29℃なら${offHour}時ごろまで運転が目安。` +
-    `21時就寝なら約${timerHours}時間タイマーで、朝5時ごろまで寝苦しくなりにくくなります。`
+    `${offHour}時ごろまで運転するのが目安。` +
+    `21時就寝なら約${timerHours}時間タイマーで、朝4時ごろまで寝苦しくなりにくくなります。`
 
   return {
     ...base,
