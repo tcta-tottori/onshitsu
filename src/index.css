@@ -143,26 +143,6 @@ a {
 .appbar .spacer {
   flex: 1;
 }
-.tctrl-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: transform 0.08s ease, filter 0.15s ease;
-}
-.tctrl-btn:active {
-  transform: scale(0.94);
-}
-.tctrl-btn.on {
-  background: linear-gradient(135deg, #fbc064, #f39d2c);
-  color: #3a2708;
-  border-color: transparent;
-}
 
 /* --- 地点ピッカー（ヘッダー直下の見出しボタン＋ボトム/ドロップシート） --- */
 .loc-pick {
@@ -512,7 +492,7 @@ a {
   margin-bottom: 3px;
 }
 .mv {
-  font-size: 26px;
+  font-size: 33px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -521,26 +501,30 @@ a {
   color: inherit;
 }
 .mv small {
-  font-size: 0.44em;
+  font-size: 0.4em;
   font-weight: 700;
   margin-left: 1px;
 }
+/* 昨日との差はバッジ表示（枠色の上でも見やすいように濃色のピル） */
+/* 昨日との差はバッジ表示（枠色の上でも見やすい濃色ピル＋明色テキスト） */
 .mdiff {
+  margin-top: 8px;
   font-size: 10.5px;
   font-weight: 800;
-  margin-top: 6px;
   font-variant-numeric: tabular-nums;
-  color: inherit;
-  opacity: 0.82;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  line-height: 1.5;
 }
 .mdiff.up {
-  color: #fca5a5;
+  color: #ffb4b0;
 }
 .mdiff.down {
-  color: #93c5fd;
+  color: #a9d8ff;
 }
 .mdiff.flat {
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 /* =========================================================================
