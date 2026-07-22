@@ -1,0 +1,754 @@
+/* =========================================================================
+   ONSHITSU — 設計システム
+   StudyDrill の構成（CSS変数 + data-theme によるライト/ダーク、mobile-first
+   .app コンテナ、ヒーローカード、riseIn スタガー）を踏襲。
+   配色は「夜」に合わせ、ダークを主役に。気温=暖色(琥珀) / 湿度=寒色(シアン)。
+   ========================================================================= */
+
+:root {
+  /* Dark（主役：夜のアプリ） */
+  --bg-1: #12121f;
+  --bg-2: #0a0a12;
+  --surface: #1b1b30;
+  --surface-2: #26264a;
+  --text: #eef1fb;
+  --text-dim: #9aa3c4;
+  --border: #2c2c50;
+
+  /* 気温 = 暖色（琥珀系） */
+  --temp: #f59e0b;
+  --temp-light: #fcd34d;
+  --temp-soft: rgba(245, 158, 11, 0.14);
+
+  /* 湿度 = 寒色（シアン系） */
+  --humid: #22d3ee;
+  --humid-light: #67e8f9;
+  --humid-soft: rgba(34, 211, 238, 0.14);
+
+  --accent: #a5b4fc; /* インディゴ寄りの補助色 */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  --shadow-hero: 0 18px 40px rgba(0, 0, 0, 0.5);
+
+  --radius: 22px;
+  --radius-sm: 16px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+:root[data-theme='light'] {
+  /* Light（夕暮れの淡いインディゴ） */
+  --bg-1: #eef1fb;
+  --bg-2: #dfe4f5;
+  --surface: #ffffff;
+  --surface-2: #eef2f9;
+  --text: #171a34;
+  --text-dim: #6b7490;
+  --border: #e2e7f3;
+
+  --temp: #d97706;
+  --temp-light: #f59e0b;
+  --temp-soft: rgba(217, 119, 6, 0.12);
+
+  --humid: #0891b2;
+  --humid-light: #22d3ee;
+  --humid-soft: rgba(8, 145, 178, 0.1);
+
+  --accent: #4f5bd5;
+
+  --shadow-sm: 0 1px 2px rgba(18, 38, 90, 0.06);
+  --shadow: 0 8px 24px rgba(18, 38, 90, 0.09), 0 1px 3px rgba(18, 38, 90, 0.05);
+  --shadow-hero: 0 16px 34px rgba(22, 48, 143, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  /* 夜の縦グラデーション：深いインディゴ → チャコール */
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 60%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP',
+    Meiryo, sans-serif;
+  line-height: 1.6;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+a {
+  color: inherit;
+}
+
+/* --- モバイルファーストの中央コンテナ --- */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* =========================================================================
+   App bar（地点名＋テーマ切替）
+   ========================================================================= */
+.appbar {
+  padding: calc(var(--safe-t) + 16px) 20px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg-1) 82%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.appbar .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.appbar .brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, #2a2a55, #14142a);
+  color: var(--temp-light);
+  box-shadow: var(--shadow-sm);
+}
+.appbar .brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+.appbar .spacer {
+  flex: 1;
+}
+.tctrl-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+.tctrl-btn:active {
+  transform: scale(0.94);
+}
+
+/* --- 地点ピッカー（ヘッダー直下の見出しボタン＋ボトム/ドロップシート） --- */
+.loc-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 12px;
+  color: var(--text);
+  min-width: 0;
+}
+.loc-pick:active {
+  background: var(--surface-2);
+}
+.loc-pin {
+  color: var(--humid-light);
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+.loc-name {
+  font-size: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.loc-caret {
+  color: var(--text-dim);
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(5, 5, 12, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--safe-t) + 70px) 20px 20px;
+  animation: fadeIn 0.18s ease;
+}
+.sheet {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  animation: sheetDrop 0.22s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+@keyframes sheetDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.sheet-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  padding: 4px 8px 10px;
+}
+.sheet-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.sheet-opt:active {
+  background: var(--surface-2);
+}
+.sheet-opt.active {
+  background: color-mix(in srgb, var(--humid) 16%, transparent);
+  color: var(--humid-light);
+}
+
+/* =========================================================================
+   Screen コンテナ
+   ========================================================================= */
+.screen {
+  flex: 1;
+  padding: 6px 20px calc(var(--safe-b) + 48px);
+}
+
+/* --- 初期表示：下から順に浮かび上がるスタガー --- */
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.screen > * {
+  animation: riseIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.screen > *:nth-child(1) {
+  animation-delay: 0.03s;
+}
+.screen > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.screen > *:nth-child(3) {
+  animation-delay: 0.17s;
+}
+.screen > *:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.screen > *:nth-child(n + 5) {
+  animation-delay: 0.3s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen > * {
+    animation: none;
+  }
+}
+
+/* --- セクション見出し --- */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 2px 12px;
+}
+.sec-head h2 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+.sec-head .sec-ic {
+  display: inline-flex;
+  color: var(--text-dim);
+}
+
+/* =========================================================================
+   ① ヒーロー（今夜サマリー）
+   ========================================================================= */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #23234a 0%, #16162e 55%, #101022 100%);
+  border-radius: 26px;
+  padding: 22px 22px 24px;
+  color: #fff;
+  box-shadow: var(--shadow-hero);
+  margin: 8px 0 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+/* ヒーロー背景：夜の帯（上=夕暮れ、下=夜明けを想起させる淡い光） */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 85% -10%, rgba(245, 158, 11, 0.18), transparent 60%),
+    radial-gradient(120% 80% at 10% 115%, rgba(34, 211, 238, 0.16), transparent 60%);
+  pointer-events: none;
+}
+.hero > * {
+  position: relative;
+}
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.hero-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.hero-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 2px 0 0;
+  letter-spacing: 0.02em;
+}
+.hero-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+/* 気温・湿度の上下限を2枠で大きく対比 */
+.hero-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.metric {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 15px 12px;
+  min-width: 0;
+}
+.metric-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.metric.temp .metric-head {
+  color: var(--temp-light);
+}
+.metric.humid .metric-head {
+  color: var(--humid-light);
+}
+.metric-pair {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+.metric-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.metric-k {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+.metric-v {
+  font-size: 33px;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.metric-v small {
+  font-size: 15px;
+  font-weight: 700;
+  margin-left: 1px;
+}
+.metric.temp .metric-v.hi {
+  color: var(--temp-light);
+}
+.metric.humid .metric-v.hi {
+  color: var(--humid-light);
+}
+.metric-sep {
+  align-self: stretch;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+/* 現在の実況（AMeDAS 等・任意） */
+.hero-now {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.hero-now b {
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+/* =========================================================================
+   汎用カード
+   ========================================================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+/* =========================================================================
+   ② 夜間グラフ
+   ========================================================================= */
+.chart-card {
+  padding: 16px 8px 12px;
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  padding: 0 12px 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.chart-legend .lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.chart-legend .dot.temp {
+  background: var(--temp);
+}
+.chart-legend .dot.humid {
+  background: var(--humid);
+}
+.chart-legend .lg.temp {
+  color: var(--temp-light);
+}
+.chart-legend .lg.humid {
+  color: var(--humid-light);
+}
+/* カスタム tick（天気アイコン＋降水確率） */
+.tick-wx {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: var(--text-dim);
+}
+.tick-hour {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.tick-pop {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--humid-light);
+  line-height: 1;
+}
+
+/* recharts のツールチップを暗色に */
+.wx-tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  font-size: 12px;
+}
+.wx-tooltip .tt-time {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.wx-tooltip .tt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wx-tooltip .tt-row.temp {
+  color: var(--temp-light);
+}
+.wx-tooltip .tt-row.humid {
+  color: var(--humid-light);
+}
+
+/* =========================================================================
+   ③ 明日以降テーブル
+   ========================================================================= */
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.frow {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 13px 15px;
+}
+.frow-date {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 42px;
+}
+.frow-day {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.frow-dow {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.frow-dow.sat {
+  color: var(--humid-light);
+}
+.frow-dow.sun {
+  color: #fb7185;
+}
+.frow-wx {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-dim);
+  min-width: 46px;
+}
+.frow-wx .wx-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.frow-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.mrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mrow .mk {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-dim);
+}
+.mrow.temp .mv-hi {
+  color: var(--temp-light);
+}
+.mrow.temp .mv-lo,
+.mrow.humid .mv-lo {
+  color: var(--text-dim);
+}
+.mrow.humid .mv-hi {
+  color: var(--humid-light);
+}
+.mrow .dash {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+.frow-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  color: var(--humid-light);
+}
+.frow-pop .pop-v {
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.frow-pop .pop-k {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* =========================================================================
+   ローディング / エラー
+   ========================================================================= */
+.state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text-dim);
+}
+.state .spinner {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  border: 3px solid var(--surface-2);
+  border-top-color: var(--humid);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .state .spinner {
+    animation-duration: 2s;
+  }
+}
+.state.error {
+  color: var(--text);
+}
+.state .err-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #fb7185;
+}
+.state .err-msg {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 0 auto 18px;
+  max-width: 320px;
+}
+.retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: var(--humid);
+  color: #06222b;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s ease;
+}
+.retry-btn:active {
+  transform: scale(0.97);
+}
+
+/* =========================================================================
+   出典表記フッター
+   ========================================================================= */
+.credits {
+  margin-top: 8px;
+  padding: 18px 4px calc(var(--safe-b) + 8px);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.credits a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+.credits a:hover {
+  text-decoration: underline;
+}
+.credits .cr-sep {
+  margin: 0 6px;
+  opacity: 0.5;
+}
+
+.muted {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* フォーカス可視（キーボード操作） */
+:focus-visible {
+  outline: 2px solid var(--humid-light);
+  outline-offset: 2px;
+  border-radius: 6px;
+}

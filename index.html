@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0a0a12" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="description"
+      content="ONSHITSU（音質ではなく、夜の湿度）— 今夜の気温と湿度に特化した天気予報。鳥取の夜の冷え込みと湿り具合を一目で。"
+    />
+    <title>ONSHITSU — 今夜の気温×湿度</title>
+    <script>
+      /* JS読込前に保存済みテーマを即適用（切替時のちらつき防止）。
+         'os-theme' は 'auto' | 'light' | 'dark'。未保存の既定は dark（夜のアプリなので）。 */
+      (function () {
+        try {
+          var m = localStorage.getItem('os-theme') || 'dark'
+          var dark =
+            m === 'dark' ||
+            (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark')
+        }
+      })()
+    </script>
+    <style>
+      /* JSが読み込まれる前から表示する起動ローダー（夜空に昇る月のアニメ）。
+         #root の外に置き、アプリ準備完了までこの1枚だけを表示する。 */
+      #boot {
+        --boot-bg1: #12121f;
+        --boot-bg2: #0a0a12;
+        --boot-moon: #fcd34d;
+        --boot-moon-glow: rgba(252, 211, 77, 0.35);
+        --boot-text: #93a1bd;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: linear-gradient(180deg, var(--boot-bg1), var(--boot-bg2));
+        font-family: system-ui, -apple-system, 'Hiragino Kaku Gothic ProN',
+          'Noto Sans JP', sans-serif;
+        transition: opacity 0.4s ease;
+      }
+      :root[data-theme='light'] #boot {
+        --boot-bg1: #eef1fb;
+        --boot-bg2: #dfe4f5;
+        --boot-moon: #e0a11c;
+        --boot-moon-glow: rgba(224, 161, 28, 0.25);
+        --boot-text: #6b7490;
+      }
+      #boot.boot-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* 昇る三日月＋淡い光輪。ゆっくり上下に揺れる。 */
+      .moon {
+        position: relative;
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        background: var(--boot-moon);
+        box-shadow: 0 0 34px 8px var(--boot-moon-glow);
+        animation: moonrise 2.6s ease-in-out infinite;
+      }
+      /* 影を重ねて三日月を作る */
+      .moon::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, var(--boot-bg1), var(--boot-bg2));
+      }
+      :root[data-theme='light'] .moon::after {
+        background: linear-gradient(180deg, #eef1fb, #dfe4f5);
+      }
+      @keyframes moonrise {
+        0%,
+        100% {
+          transform: translateY(4px);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+      /* 小さな星のまたたき */
+      .stars {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .stars i {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: #cbd5f5;
+        opacity: 0.7;
+        animation: twinkle 1.8s ease-in-out infinite;
+      }
+      .stars i:nth-child(1) { left: 22%; top: 30%; animation-delay: 0s; }
+      .stars i:nth-child(2) { left: 74%; top: 26%; animation-delay: 0.4s; }
+      .stars i:nth-child(3) { left: 60%; top: 62%; animation-delay: 0.8s; }
+      .stars i:nth-child(4) { left: 34%; top: 66%; animation-delay: 1.2s; }
+      .stars i:nth-child(5) { left: 84%; top: 54%; animation-delay: 0.6s; }
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.2; transform: scale(0.8); }
+        50% { opacity: 0.9; transform: scale(1.2); }
+      }
+      .bl-text {
+        font-size: 13px;
+        color: var(--boot-text);
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        animation: blink 1.4s infinite ease-in-out;
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.35; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .moon, .stars i { animation: none; }
+        .bl-text { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="boot">
+      <div class="stars" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="moon" aria-hidden="true"></div>
+      <div class="bl-text">ONSHITSU</div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
