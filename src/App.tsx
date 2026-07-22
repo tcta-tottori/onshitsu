@@ -100,7 +100,7 @@ export default function App() {
         <div className="brand">
           <img
             className="brand-mark"
-            src={`${import.meta.env.BASE_URL}icon.svg`}
+            src={`${import.meta.env.BASE_URL}icon.png`}
             alt=""
             width={38}
             height={38}
