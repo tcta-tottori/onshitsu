@@ -288,20 +288,26 @@ a {
   }
 }
 
-/* グラフの描画は左→右ではなく下→上に現れる（clip-path で下から開く） */
-@keyframes chartUp {
+/* グリッド・軸・塗りは即表示。曲線（.nline）だけ少し遅れて下からゆっくり出現する。 */
+@keyframes lineRise {
   from {
-    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+    transform: translateY(18px);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-.nchart-up {
-  animation: chartUp 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+.nline {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: lineRise 1.2s cubic-bezier(0.16, 0.7, 0.3, 1) 0.5s forwards;
 }
 @media (prefers-reduced-motion: reduce) {
-  .nchart-up {
+  .nline {
+    opacity: 1;
+    transform: none;
     animation: none;
   }
 }

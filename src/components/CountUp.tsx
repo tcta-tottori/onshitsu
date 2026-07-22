@@ -11,7 +11,7 @@ function reduceMotion(): boolean {
 
 export default function CountUp({
   value,
-  duration = 850,
+  duration = 1700,
   className,
 }: {
   value: number | null
@@ -35,7 +35,8 @@ export default function CountUp({
     const tick = (ts: number) => {
       if (startTs === null) startTs = ts
       const t = Math.min(1, (ts - startTs) / duration)
-      const eased = 1 - Math.pow(1 - t, 3) // easeOutCubic
+      // easeOutQuint：終盤（目標に近づくほど）に強く減速する
+      const eased = 1 - Math.pow(1 - t, 5)
       setDisplay(target * eased)
       if (t < 1) raf.current = requestAnimationFrame(tick)
     }

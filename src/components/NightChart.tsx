@@ -103,7 +103,6 @@ export default function NightChart({
           </span>
         </div>
       )}
-      <div className="nchart-up">
       <ResponsiveContainer width="100%" height={compact ? 172 : 236}>
         <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 24, left: 0 }}>
           <defs>
@@ -183,11 +182,12 @@ export default function NightChart({
             connectNulls
           />
 
-          {/* 発光する曲線（下から立ち上がるアニメは親 .nchart-up で行う） */}
+          {/* 発光する曲線。グリッド／軸／塗りは即表示し、線だけ遅れて下から出現（.nline） */}
           <Line
             yAxisId="humid"
             type="monotone"
             dataKey="humidity"
+            className="nline"
             stroke={HUMID}
             strokeWidth={2.6}
             strokeLinecap="round"
@@ -201,6 +201,7 @@ export default function NightChart({
             yAxisId="temp"
             type="monotone"
             dataKey="temp"
+            className="nline"
             stroke={TEMP}
             strokeWidth={2.6}
             strokeLinecap="round"
@@ -212,7 +213,6 @@ export default function NightChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      </div>
     </section>
   )
 }
