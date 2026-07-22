@@ -905,19 +905,20 @@ a {
 .frow-dow.sun {
   color: #fb7185;
 }
-/* 気温・湿度を1行（アイコン付き）で。high | 区切り線 | low。 */
+/* 気温・湿度を1行（アイコン付き）で中央揃え・バランス良く。high | 区切り線 | low。 */
 .frow-metrics {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px 18px;
-  justify-self: start;
+  justify-content: center;
+  gap: 6px 22px;
+  justify-self: center;
   min-width: 0;
 }
 .fg {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-variant-numeric: tabular-nums;
 }
 .fg-ic {
@@ -930,7 +931,7 @@ a {
   color: var(--humid-light);
 }
 .fg-hi {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -941,7 +942,7 @@ a {
   color: var(--humid-light);
 }
 .fg-lo {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-dim);
 }
@@ -953,7 +954,7 @@ a {
 }
 .fg-sep {
   width: 1px;
-  height: 14px;
+  height: 18px;
   background: var(--border);
 }
 /* 天気アイコン（右端） */

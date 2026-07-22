@@ -27,9 +27,9 @@ function Group({
     <span className={`fg ${kind}`}>
       <span className="fg-ic">
         {kind === 'temp' ? (
-          <Thermometer size={15} strokeWidth={2.2} />
+          <Thermometer size={19} strokeWidth={2.2} />
         ) : (
-          <Droplets size={15} strokeWidth={2.2} />
+          <Droplets size={19} strokeWidth={2.2} />
         )}
       </span>
       <span className="fg-hi">

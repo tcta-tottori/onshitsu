@@ -42,7 +42,7 @@ export default function AirconCard({ advice }: { advice: AirconAdvice }) {
           </div>
 
           <div className="ac-cost">
-            <span className="ac-cost-label">電気代の目安</span>
+            <span className="ac-cost-label">21時〜の継続分</span>
             <span className={`ac-cost-item${advice.mode === 'cool' ? ' on' : ''}`}>
               冷房 約{advice.costCool}円
             </span>
@@ -58,7 +58,7 @@ export default function AirconCard({ advice }: { advice: AirconAdvice }) {
 
       <p className="ac-detail">{advice.detail}</p>
       <p className="ac-note">
-        ※就寝21時・起床4時を想定した体感（不快指数）と、実機の消費電力・31円/kWhによる目安です。
+        ※就寝21時・起床4時を想定した体感（不快指数）と、21時から継続運転した場合の継続分（実機の室温維持時の消費電力・31円/kWh）による目安です。
       </p>
     </section>
   )
