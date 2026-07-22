@@ -9,17 +9,5 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// 起動ローダー（index.html の #boot）をアプリ描画後にフェードアウトして隠す。
-// 一瞬で消えるチラつきを避けるため、最低600msは表示する。
-const boot = document.getElementById('boot')
-if (boot) {
-  const hide = () => {
-    boot.classList.add('boot-hide')
-    setTimeout(() => {
-      boot.style.display = 'none'
-    }, 460)
-  }
-  const started = performance.now()
-  const wait = Math.max(0, 600 - (performance.now() - started))
-  setTimeout(hide, wait)
-}
+// 起動ローダー（index.html の #boot）は「気象データの読込が終わるまで」表示する。
+// 実際に隠すのは App が window.__bootFinish() を呼んだとき（データ ready / error 時）。

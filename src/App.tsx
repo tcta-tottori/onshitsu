@@ -48,6 +48,13 @@ export default function App() {
     return { night, daily, cards }
   }, [state])
 
+  // 初回の気象データ読込が終わったら起動ローダー（#boot）を隠す
+  useEffect(() => {
+    if (state.status === 'ready' || state.status === 'error') {
+      ;(window as unknown as { __bootFinish?: () => void }).__bootFinish?.()
+    }
+  }, [state.status])
+
   const retry = () => setReloadKey((k) => k + 1)
 
   return (
