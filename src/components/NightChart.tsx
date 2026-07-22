@@ -68,7 +68,13 @@ function fourTicks(lo: number, hi: number): number[] {
   return [0, 1, 2, 3].map((i) => lo + ((hi - lo) * i) / 3)
 }
 
-export default function NightChart({ series }: { series: NightSeries }) {
+export default function NightChart({
+  series,
+  compact = false,
+}: {
+  series: NightSeries
+  compact?: boolean
+}) {
   const { points } = series
   const data = points
 
@@ -83,17 +89,22 @@ export default function NightChart({ series }: { series: NightSeries }) {
   const humTicks = fourTicks(hLo, hHi)
 
   return (
-    <section className="card chart-card chart-rise" aria-label="今夜の気温・湿度の推移">
-      <div className="chart-legend">
-        <span className="lg temp">
-          <Thermometer size={19} strokeWidth={2.2} />気温 ℃
-        </span>
-        <span className="lg humid">
-          <Droplets size={19} strokeWidth={2.2} />湿度 %
-        </span>
-      </div>
-      <ResponsiveContainer width="100%" height={236}>
-        <ComposedChart data={data} margin={{ top: 10, right: 6, bottom: 26, left: 2 }}>
+    <section
+      className={compact ? 'nchart nchart-compact' : 'card chart-card chart-rise'}
+      aria-label="夜の気温・湿度の推移"
+    >
+      {!compact && (
+        <div className="chart-legend">
+          <span className="lg temp">
+            <Thermometer size={19} strokeWidth={2.2} />気温 ℃
+          </span>
+          <span className="lg humid">
+            <Droplets size={19} strokeWidth={2.2} />湿度 %
+          </span>
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={compact ? 172 : 236}>
+        <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 24, left: 0 }}>
           <defs>
             {/* 曲線の下に敷く縦グラデーション（アイコンの塗りに合わせる） */}
             <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">

@@ -122,7 +122,7 @@ export function todayStr(now: Date = new Date()): string {
   return `${y}-${m}-${d}`
 }
 
-/** ① ヒーロー用：ある夜（19〜翌6時）の気温・湿度の上下限と、前夜との差 */
+/** ① ヒーロー用：ある夜（19〜翌6時）の気温・湿度の上下限と、前夜との差、推移系列 */
 export interface NightCard {
   /** 夜の開始日（＝その晩の日付） */
   dateObj: Date
@@ -136,9 +136,43 @@ export interface NightCard {
   tempLowDiff: number | null
   humHighDiff: number | null
   humLowDiff: number | null
+  /** その夜の推移（カード内グラフ用） */
+  series: NightSeries
 }
 
 const DAY_MS = 86_400_000
+
+/** [startMs, endMs] の hourly を NightSeries（グラフ用の毎時系列＋上下限）に整形する。 */
+function buildNightSeries(
+  data: WeatherData,
+  startMs: number,
+  endMs: number,
+  hourlyPop?: Array<number | null>,
+): NightSeries {
+  const { time, temperature_2m, relative_humidity_2m, weather_code } = data.hourly
+  const points: NightPoint[] = []
+  let order = 0
+  for (let i = 0; i < time.length; i++) {
+    const d = parseHourly(time[i])
+    const ms = d.getTime()
+    if (ms >= startMs && ms <= endMs) {
+      points.push({
+        hour: d.getHours(),
+        idx: order++,
+        temp: temperature_2m[i] ?? null,
+        humidity: relative_humidity_2m[i] ?? null,
+        pop: hourlyPop ? hourlyPop[i] ?? null : null,
+        weatherCode: weather_code[i] ?? null,
+      })
+    }
+  }
+  return {
+    window: { startDate: '', endDate: '', start: new Date(startMs), end: new Date(endMs) },
+    points,
+    temp: minMax(points.map((p) => p.temp)),
+    humidity: minMax(points.map((p) => p.humidity)),
+  }
+}
 
 /** hourly を [startMs, endMs] で絞り、気温・湿度の min/max を返す（夜の期間のみ集計） */
 function windowMinMax(data: WeatherData, startMs: number, endMs: number) {
@@ -189,6 +223,7 @@ export function deriveNightCards(
   data: WeatherData,
   now: Date = new Date(),
   count = 3,
+  hourlyPop?: Array<number | null>,
 ): NightCard[] {
   const base = getNightWindow(now)
   const diff = (a: number | null | undefined, b: number | null | undefined): number | null =>
@@ -200,7 +235,8 @@ export function deriveNightCards(
   for (let k = 0; k < count; k++) {
     const startMs = base.start.getTime() + k * DAY_MS
     const endMs = base.end.getTime() + k * DAY_MS
-    const cur = windowMinMax(data, startMs, endMs)
+    const series = buildNightSeries(data, startMs, endMs, hourlyPop)
+    const cur = series
     const prev = windowMinMax(data, startMs - DAY_MS, endMs - DAY_MS)
     const startDate = new Date(startMs)
     cards.push({
@@ -208,12 +244,13 @@ export function deriveNightCards(
       weatherCode: windowWeatherCode(data, startMs, endMs),
       tempHigh: cur.temp?.max ?? null,
       tempLow: cur.temp?.min ?? null,
-      humHigh: cur.hum?.max ?? null,
-      humLow: cur.hum?.min ?? null,
+      humHigh: cur.humidity?.max ?? null,
+      humLow: cur.humidity?.min ?? null,
       tempHighDiff: diff(cur.temp?.max, prev.temp?.max),
       tempLowDiff: diff(cur.temp?.min, prev.temp?.min),
-      humHighDiff: diff(cur.hum?.max, prev.hum?.max),
-      humLowDiff: diff(cur.hum?.min, prev.hum?.min),
+      humHighDiff: diff(cur.humidity?.max, prev.hum?.max),
+      humLowDiff: diff(cur.humidity?.min, prev.hum?.min),
+      series,
     })
   }
   return cards

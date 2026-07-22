@@ -6,6 +6,7 @@ import { weatherFromCode } from '../lib/weatherCode'
 import type { NightCard } from '../lib/derive'
 import CountUp from './CountUp'
 import WeatherIcon from './WeatherIcon'
+import NightChart from './NightChart'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
 const BADGES = ['今日', '明日', '明後日']
@@ -126,6 +127,11 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
             </>
           }
         />
+      </div>
+
+      <div className="hero-chart">
+        <div className="hero-chart-head">夜の推移</div>
+        <NightChart series={card.series} compact />
       </div>
     </section>
   )

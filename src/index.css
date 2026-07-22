@@ -527,6 +527,23 @@ a {
   color: rgba(255, 255, 255, 0.82);
 }
 
+/* カード内の夜の推移グラフ */
+.hero-chart {
+  margin-top: 16px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hero-chart-head {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  padding: 8px 2px 2px;
+}
+.nchart {
+  width: 100%;
+}
+
 /* =========================================================================
    汎用カード
    ========================================================================= */

@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
-import { deriveNight, deriveNightCards, deriveNightForecast } from './lib/derive'
+import { deriveNightCards, deriveNightForecast } from './lib/derive'
 import { adviseAircon } from './lib/aircon'
 import NightSummary from './components/NightSummary'
-import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
 import LocationPicker from './components/LocationPicker'
 import AirconCard from './components/AirconCard'
@@ -45,11 +44,10 @@ export default function App() {
   const derived = useMemo(() => {
     if (state.status !== 'ready') return null
     const now = nowRef.current
-    const night = deriveNight(state.data, now, state.data.hourly.precipitation_probability)
     const forecast = deriveNightForecast(state.data, now, 6)
-    const cards = deriveNightCards(state.data, now, 3)
-    const aircon = adviseAircon(night.points)
-    return { night, forecast, cards, aircon }
+    const cards = deriveNightCards(state.data, now, 3, state.data.hourly.precipitation_probability)
+    const aircon = adviseAircon(cards[0]?.series.points ?? [])
+    return { forecast, cards, aircon }
   }, [state])
 
   // 初回の気象データ読込が終わったら起動ローダー（#boot）を隠す
@@ -108,13 +106,6 @@ export default function App() {
                 <AirconCard advice={derived.aircon} />
               </Reveal>
             )}
-
-            <Reveal>
-              <div className="sec-head">
-                <h2>今夜の推移</h2>
-              </div>
-            </Reveal>
-            <NightChart series={derived.night} />
 
             <Reveal>
               <div className="sec-head">
