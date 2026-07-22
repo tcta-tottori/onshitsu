@@ -1,15 +1,13 @@
-// ③ 明日以降テーブル：日付／気温・湿度（横並び・最高大・最低小）／天気アイコン(右)。
-// 降水確率は廃止。
+// ③ 明日以降テーブル：各行は「夜（19〜翌6時）」の気温・湿度（同サイズ＋区切り線）と
+// 天気アイコン（右）。スクロールで浮かび上がり（Reveal）、数字はカウントアップ。
 import { weatherFromCode } from '../lib/weatherCode'
-import type { DailyRow } from '../lib/derive'
+import type { NightForecastRow } from '../lib/derive'
+import CountUp from './CountUp'
+import WeatherIcon from './WeatherIcon'
+import Reveal from './Reveal'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
 
-function round(v: number | null): string {
-  return v === null ? '—' : String(Math.round(v))
-}
-
-/** 最高(大)/最低(小) の縦積み */
 function Metric({
   kind,
   hi,
@@ -24,19 +22,19 @@ function Metric({
   return (
     <div className={`fg ${kind}`}>
       <span className="fg-hi">
-        {round(hi)}
+        <CountUp value={hi} />
         <small>{unit}</small>
       </span>
       <span className="fg-sep" aria-hidden="true" />
       <span className="fg-lo">
-        {round(lo)}
+        <CountUp value={lo} />
         <small>{unit}</small>
       </span>
     </div>
   )
 }
 
-export default function ForecastTable({ rows }: { rows: DailyRow[] }) {
+export default function ForecastTable({ rows }: { rows: NightForecastRow[] }) {
   if (!rows.length) {
     return (
       <div className="card">
@@ -49,27 +47,29 @@ export default function ForecastTable({ rows }: { rows: DailyRow[] }) {
 
   return (
     <div className="forecast-list">
-      {rows.map((r) => {
+      {rows.map((r, i) => {
         const dow = r.dateObj.getDay()
-        const { Icon, label } = weatherFromCode(r.weatherCode)
+        const { label } = weatherFromCode(r.weatherCode)
         return (
-          <div className="frow" key={r.date}>
-            <div className="frow-date">
-              <span className="frow-day">{r.dateObj.getDate()}</span>
-              <span className={`frow-dow${dow === 6 ? ' sat' : dow === 0 ? ' sun' : ''}`}>
-                {DOW[dow]}
-              </span>
-            </div>
+          <Reveal key={i} delay={Math.min(i, 4) * 60}>
+            <div className="frow">
+              <div className="frow-date">
+                <span className="frow-day">{r.dateObj.getDate()}</span>
+                <span className={`frow-dow${dow === 6 ? ' sat' : dow === 0 ? ' sun' : ''}`}>
+                  {DOW[dow]}
+                </span>
+              </div>
 
-            <div className="frow-metrics2">
-              <Metric kind="temp" hi={r.tempMax} lo={r.tempMin} unit="°" />
-              <Metric kind="humid" hi={r.humidityMax} lo={r.humidityMin} unit="%" />
-            </div>
+              <div className="frow-metrics2">
+                <Metric kind="temp" hi={r.tempHigh} lo={r.tempLow} unit="°" />
+                <Metric kind="humid" hi={r.humHigh} lo={r.humLow} unit="%" />
+              </div>
 
-            <div className="frow-wx" title={label}>
-              <Icon size={30} strokeWidth={1.7} aria-hidden="true" />
+              <div className="frow-wx" title={label}>
+                <WeatherIcon code={r.weatherCode} size={30} strokeWidth={1.7} />
+              </div>
             </div>
-          </div>
+          </Reveal>
         )
       })}
     </div>

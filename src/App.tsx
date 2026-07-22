@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
-import { deriveDaily, deriveNight, deriveNightCards, todayStr } from './lib/derive'
+import { deriveNight, deriveNightCards, deriveNightForecast } from './lib/derive'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
 import LocationPicker from './components/LocationPicker'
+import Reveal from './components/Reveal'
 
 type LoadState =
   | { status: 'loading' }
@@ -43,9 +44,9 @@ export default function App() {
     if (state.status !== 'ready') return null
     const now = nowRef.current
     const night = deriveNight(state.data, now, state.data.hourly.precipitation_probability)
-    const daily = deriveDaily(state.data, todayStr(now))
+    const forecast = deriveNightForecast(state.data, now, 6)
     const cards = deriveNightCards(state.data, now, 3)
-    return { night, daily, cards }
+    return { night, forecast, cards }
   }, [state])
 
   // 初回の気象データ読込が終わったら起動ローダー（#boot）を隠す
@@ -95,17 +96,25 @@ export default function App() {
 
         {state.status === 'ready' && derived && (
           <>
-            <NightSummary cards={derived.cards} />
+            <Reveal>
+              <NightSummary cards={derived.cards} />
+            </Reveal>
 
-            <div className="sec-head">
-              <h2>今夜の推移</h2>
-            </div>
-            <NightChart series={derived.night} />
+            <Reveal>
+              <div className="sec-head">
+                <h2>今夜の推移</h2>
+              </div>
+            </Reveal>
+            <Reveal className="reveal-chart">
+              <NightChart series={derived.night} />
+            </Reveal>
 
-            <div className="sec-head">
-              <h2>明日以降の予報</h2>
-            </div>
-            <ForecastTable rows={derived.daily} />
+            <Reveal>
+              <div className="sec-head">
+                <h2>明日以降の予報</h2>
+              </div>
+            </Reveal>
+            <ForecastTable rows={derived.forecast} />
           </>
         )}
       </main>

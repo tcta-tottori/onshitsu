@@ -264,38 +264,27 @@ a {
   padding: 6px 20px calc(var(--safe-b) + 48px);
 }
 
-/* --- 初期表示：下から順に浮かび上がるスタガー --- */
-@keyframes riseIn {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+/* --- スクロールで下から浮かび上がる（Reveal） --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
 }
-.screen > * {
-  animation: riseIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+.reveal.reveal-in {
+  opacity: 1;
+  transform: none;
 }
-.screen > *:nth-child(1) {
-  animation-delay: 0.03s;
-}
-.screen > *:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.screen > *:nth-child(3) {
-  animation-delay: 0.17s;
-}
-.screen > *:nth-child(4) {
-  animation-delay: 0.24s;
-}
-.screen > *:nth-child(n + 5) {
-  animation-delay: 0.3s;
+/* グラフはより大きく下から出現 */
+.reveal-chart {
+  transform: translateY(40px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .screen > * {
-    animation: none;
+  .reveal,
+  .reveal-chart {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -468,58 +457,80 @@ a {
 .metric.humid .metric-head {
   color: var(--humid-light);
 }
-/* high / low を同サイズ＋間に区切り線 */
-.metric-pair {
+/* high / low を色付きバッジ（センター合わせ）で表示 */
+.badge-pair {
   display: flex;
-  align-items: stretch;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
 }
-.mcol {
+.wbcol {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 0;
   min-width: 0;
 }
-.metric-sep {
-  flex: 0 0 auto;
-  align-self: stretch;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.14);
-  margin: 2px 0;
+.wbadge {
+  width: 100%;
+  border-radius: 14px;
+  padding: 8px 4px 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  text-align: center;
 }
-.mk {
-  font-size: 9.5px;
+.wb-k {
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 3px;
 }
-.mv {
-  font-size: 26px;
+.wb-v {
+  font-size: 24px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.mv small {
-  font-size: 0.44em;
+.wb-v small {
+  font-size: 0.46em;
   font-weight: 700;
   margin-left: 1px;
 }
-.mv.lo {
-  color: var(--text-dim);
+/* HIGH：鮮やかな塗り＋濃色文字 / LOW：淡い塗り＋明色文字 */
+.wbadge.hi.temp {
+  background: linear-gradient(135deg, #fbc064, #f39d2c);
+  color: #3a2708;
 }
-.metric.temp .mcol.hi .mv {
+.wbadge.hi.temp .wb-k {
+  color: #5a3d10;
+}
+.wbadge.lo.temp {
+  background: rgba(246, 168, 62, 0.16);
   color: var(--temp-light);
 }
-.metric.humid .mcol.hi .mv {
+.wbadge.lo.temp .wb-k {
+  color: rgba(248, 192, 101, 0.85);
+}
+.wbadge.hi.humid {
+  background: linear-gradient(135deg, #a4e2f6, #6fcbea);
+  color: #06303d;
+}
+.wbadge.hi.humid .wb-k {
+  color: #0a4657;
+}
+.wbadge.lo.humid {
+  background: rgba(127, 211, 239, 0.16);
   color: var(--humid-light);
+}
+.wbadge.lo.humid .wb-k {
+  color: rgba(127, 211, 239, 0.85);
 }
 .mdiff {
   font-size: 10.5px;
   font-weight: 700;
-  margin-top: 6px;
   font-variant-numeric: tabular-nums;
 }
 .mdiff.up {
@@ -712,6 +723,75 @@ a {
   justify-content: center;
   color: #e6edff;
   flex: 0 0 auto;
+}
+
+/* =========================================================================
+   天気アイコンのアニメーション
+   ========================================================================= */
+.wxi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+/* 曇り/雪：上下にゆっくり揺れる */
+.wxi-float {
+  animation: wxfloat 3s ease-in-out infinite;
+}
+@keyframes wxfloat {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(2px); }
+}
+/* 雷：時々明滅 */
+.wxi-flash > svg {
+  animation: wxflash 2.6s ease-in-out infinite;
+}
+@keyframes wxflash {
+  0%, 88%, 100% { opacity: 1; }
+  90% { opacity: 0.3; }
+  92% { opacity: 1; }
+  95% { opacity: 0.4; }
+  97% { opacity: 1; }
+}
+/* 雨：雲の下で雨の線が上→下へ流れる */
+.wxi-rain {
+  position: relative;
+  display: inline-block;
+}
+.wxi-drops {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wxi-drops i {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 34%;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.55;
+  animation: wxrain 1s linear infinite;
+}
+.wxi-drops i:nth-child(1) { left: 28%; animation-delay: 0s; }
+.wxi-drops i:nth-child(2) { left: 50%; animation-delay: 0.34s; }
+.wxi-drops i:nth-child(3) { left: 72%; animation-delay: 0.66s; }
+@keyframes wxrain {
+  0% { transform: translateY(-70%); opacity: 0; }
+  25% { opacity: 0.65; }
+  100% { transform: translateY(260%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wxi-float,
+  .wxi-flash > svg,
+  .wxi-drops i {
+    animation: none;
+  }
+  .wxi-drops i { opacity: 0.5; }
 }
 
 /* =========================================================================

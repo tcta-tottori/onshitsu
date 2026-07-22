@@ -1,7 +1,6 @@
 // 主軸データ(WeatherData)を各画面が使う形へ整形する。
 import type { WeatherData } from '../api/weather'
 import { getNightWindow, minMax, nightIndices, parseHourly, type NightWindow } from './night'
-import { dailyHumidityMap } from './humidity'
 
 /** ② グラフ／ヒーロー用：今夜ウィンドウの各時刻の値 */
 export interface NightPoint {
@@ -55,41 +54,40 @@ export function deriveNight(
   }
 }
 
-/** ③ テーブル用：翌日以降の1日1行 */
-export interface DailyRow {
-  /** YYYY-MM-DD */
-  date: string
+/** ③ テーブル用：翌日以降の「夜（19〜翌6時）」1行 */
+export interface NightForecastRow {
   dateObj: Date
   weatherCode: number | null
-  tempMax: number | null
-  tempMin: number | null
-  humidityMax: number | null
-  humidityMin: number | null
-  pop: number | null
+  tempHigh: number | null
+  tempLow: number | null
+  humHigh: number | null
+  humLow: number | null
 }
 
 /**
- * daily を翌日以降の行に整形する。湿度は hourly から日別集計して添える。
- * @param todayStr 今日の YYYY-MM-DD（この日は除外して「明日以降」を返す）
+ * 翌夜以降の「夜（19〜翌6時）」の気温・湿度の上下限を count 日分作る。
+ * 上下限・天気とも夜の期間の hourly のみから算出（日中は含めない）。
+ * データ範囲外の夜はスキップ（自然に日数が制限される）。
  */
-export function deriveDaily(data: WeatherData, todayStr: string): DailyRow[] {
-  const humMap = dailyHumidityMap(data.hourly.time, data.hourly.relative_humidity_2m)
-  const d = data.daily
-  const rows: DailyRow[] = []
-  for (let i = 0; i < d.time.length; i++) {
-    const date = d.time[i]
-    if (date <= todayStr) continue // 今日以前は除外
-    const hum = humMap.get(date)
-    const [y, mo, da] = date.split('-').map(Number)
+export function deriveNightForecast(
+  data: WeatherData,
+  now: Date = new Date(),
+  count = 6,
+): NightForecastRow[] {
+  const base = getNightWindow(now)
+  const rows: NightForecastRow[] = []
+  for (let k = 1; k <= count; k++) {
+    const startMs = base.start.getTime() + k * DAY_MS
+    const endMs = base.end.getTime() + k * DAY_MS
+    const cur = windowMinMax(data, startMs, endMs)
+    if (!cur.temp && !cur.hum) continue // 範囲外＝データ無し
     rows.push({
-      date,
-      dateObj: new Date(y, mo - 1, da),
-      weatherCode: d.weather_code[i] ?? null,
-      tempMax: d.temperature_2m_max[i] ?? null,
-      tempMin: d.temperature_2m_min[i] ?? null,
-      humidityMax: hum?.max ?? null,
-      humidityMin: hum?.min ?? null,
-      pop: d.precipitation_probability_max[i] ?? null,
+      dateObj: new Date(startMs),
+      weatherCode: windowWeatherCode(data, startMs, endMs),
+      tempHigh: cur.temp?.max ?? null,
+      tempLow: cur.temp?.min ?? null,
+      humHigh: cur.hum?.max ?? null,
+      humLow: cur.hum?.min ?? null,
     })
   }
   return rows
@@ -136,10 +134,29 @@ function windowMinMax(data: WeatherData, startMs: number, endMs: number) {
   return { temp: minMax(t), hum: minMax(h) }
 }
 
-function dateKeyOf(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-    d.getDate(),
-  ).padStart(2, '0')}`
+// （日付キー生成は不要になったため削除）
+
+/** [startMs, endMs] の hourly weather_code の代表値（最頻／同数なら重い方）。夜の天気を表す。 */
+function windowWeatherCode(data: WeatherData, startMs: number, endMs: number): number | null {
+  const counts = new Map<number, number>()
+  const { time, weather_code } = data.hourly
+  for (let i = 0; i < time.length; i++) {
+    const ms = parseHourly(time[i]).getTime()
+    if (ms >= startMs && ms <= endMs) {
+      const c = weather_code[i]
+      if (c === null || c === undefined) continue
+      counts.set(c, (counts.get(c) ?? 0) + 1)
+    }
+  }
+  let best: number | null = null
+  let bestN = -1
+  for (const [c, n] of counts) {
+    if (n > bestN || (n === bestN && best !== null && c > best)) {
+      best = c
+      bestN = n
+    }
+  }
+  return best
 }
 
 /**
@@ -165,10 +182,9 @@ export function deriveNightCards(
     const cur = windowMinMax(data, startMs, endMs)
     const prev = windowMinMax(data, startMs - DAY_MS, endMs - DAY_MS)
     const startDate = new Date(startMs)
-    const di = data.daily.time.indexOf(dateKeyOf(startDate))
     cards.push({
       dateObj: startDate,
-      weatherCode: di >= 0 ? data.daily.weather_code[di] ?? null : null,
+      weatherCode: windowWeatherCode(data, startMs, endMs),
       tempHigh: cur.temp?.max ?? null,
       tempLow: cur.temp?.min ?? null,
       humHigh: cur.hum?.max ?? null,

@@ -24,15 +24,13 @@
     </script>
     <style>
       /* 起動ローダー：気象データの読込が終わるまで表示し続ける（React が __bootFinish を呼ぶ）。
-         アイコンの世界観：上下に揺れる三日月＋その下でアイコン風の交差グラフが描かれる。 */
+         シンプルに、上下に揺れる三日月ときらめく星のみ。 */
       #boot {
         --boot-bg1: #141f36;
         --boot-bg2: #0a1120;
         --boot-moon: #f4f7ff;
         --boot-moon-glow: rgba(190, 208, 255, 0.4);
-        --boot-text: #93a1bd;
-        --boot-temp: #f6a83e;
-        --boot-humid: #7fd3ef;
+        --boot-text: #aeb9d6;
         position: fixed;
         inset: 0;
         z-index: 9999;
@@ -51,17 +49,14 @@
         pointer-events: none;
       }
 
-      /* 月＋グラフをまとめる舞台 */
+      /* 三日月と星をまとめる舞台 */
       .boot-stage {
         position: relative;
-        width: 168px;
-        height: 178px;
+        width: 180px;
+        height: 150px;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        gap: 20px;
-        padding-top: 18px;
+        justify-content: center;
       }
 
       /* 昇る三日月＋光輪＋きらめき。ゆっくり上下に揺れる。 */
@@ -94,7 +89,7 @@
         background: var(--boot-moon);
         clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
         box-shadow: 0 0 12px 2px var(--boot-moon-glow);
-        animation: twinkle 1.8s ease-in-out infinite;
+        animation: sparkle 1.8s ease-in-out infinite;
         z-index: 2;
       }
       @keyframes moonrise {
@@ -102,89 +97,44 @@
         50% { transform: translateY(-6px); }
       }
 
-      /* アイコン風の交差グラフ（気温↓×湿度↑）。描かれては流れる。 */
-      .boot-graph {
-        width: 150px;
-        height: 84px;
-        overflow: visible;
-      }
-      .bg-line {
-        fill: none;
-        stroke-width: 4;
-        stroke-linecap: round;
-        stroke-dasharray: 220;
-        stroke-dashoffset: 220;
-        filter: drop-shadow(0 0 5px currentColor);
-        animation: draw 2.6s ease-in-out infinite;
-      }
-      .bg-line.temp {
-        stroke: var(--boot-temp);
-        color: var(--boot-temp);
-      }
-      .bg-line.humid {
-        stroke: var(--boot-humid);
-        color: var(--boot-humid);
-        animation-delay: 0.25s;
-      }
-      .bg-dot {
-        animation: dotpulse 2.6s ease-in-out infinite;
-      }
-      @keyframes draw {
-        0% { stroke-dashoffset: 220; }
-        45% { stroke-dashoffset: 0; }
-        70% { stroke-dashoffset: 0; }
-        100% { stroke-dashoffset: -220; }
-      }
-      @keyframes dotpulse {
-        0%, 40% { opacity: 0; transform: scale(0.6); }
-        55%, 70% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(0.6); }
-      }
-
-      /* 星のまたたき */
+      /* きらめく星（4点星）。舞台いっぱいに散らす。 */
       .stars {
         position: absolute;
         inset: 0;
-        overflow: hidden;
         pointer-events: none;
       }
       .stars i {
         position: absolute;
-        width: 3px;
-        height: 3px;
-        border-radius: 50%;
-        background: #cbd5f5;
-        opacity: 0.7;
-        animation: twinkle 1.8s ease-in-out infinite;
+        width: 10px;
+        height: 10px;
+        background: #dbe4ff;
+        /* 4点星の形 */
+        clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+        opacity: 0.5;
+        filter: drop-shadow(0 0 4px rgba(200, 214, 255, 0.6));
+        animation: sparkle 1.8s ease-in-out infinite;
       }
-      .stars i:nth-child(1) { left: 12%; top: 14%; animation-delay: 0s; }
-      .stars i:nth-child(2) { left: 84%; top: 10%; animation-delay: 0.4s; }
-      .stars i:nth-child(3) { left: 90%; top: 40%; animation-delay: 0.8s; }
-      .stars i:nth-child(4) { left: 6%; top: 44%; animation-delay: 1.2s; }
-      .stars i:nth-child(5) { left: 74%; top: 30%; animation-delay: 0.6s; }
-      @keyframes twinkle {
-        0%, 100% { opacity: 0.2; transform: scale(0.8); }
-        50% { opacity: 0.9; transform: scale(1.2); }
+      .stars i:nth-child(1) { left: 8%;  top: 22%; width: 12px; height: 12px; animation-delay: 0s; }
+      .stars i:nth-child(2) { left: 86%; top: 16%; width: 9px;  height: 9px;  animation-delay: 0.5s; }
+      .stars i:nth-child(3) { left: 92%; top: 58%; width: 11px; height: 11px; animation-delay: 1s; }
+      .stars i:nth-child(4) { left: 4%;  top: 62%; width: 8px;  height: 8px;  animation-delay: 1.4s; }
+      .stars i:nth-child(5) { left: 72%; top: 74%; width: 10px; height: 10px; animation-delay: 0.8s; }
+      .stars i:nth-child(6) { left: 22%; top: 80%; width: 7px;  height: 7px;  animation-delay: 0.3s; }
+      @keyframes sparkle {
+        0%, 100% { opacity: 0.15; transform: scale(0.6) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1.15) rotate(45deg); }
       }
 
-      .bl-text {
-        font-size: 14px;
-        color: #e6edff;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-      }
       .boot-pct {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 800;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.1em;
         color: var(--boot-text);
         font-variant-numeric: tabular-nums;
       }
 
       @media (prefers-reduced-motion: reduce) {
         .moon, .stars i, .moon::before { animation: none; }
-        .bg-line { animation: none; stroke-dashoffset: 0; }
-        .bg-dot { animation: none; opacity: 1; }
       }
     </style>
   </head>
@@ -193,20 +143,11 @@
     <div id="boot">
       <div class="boot-stage">
         <div class="stars" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
         <div class="moon" aria-hidden="true"></div>
-        <svg class="boot-graph" viewBox="0 0 160 90" aria-hidden="true">
-          <!-- 気温：左上→右下（下降） -->
-          <path class="bg-line temp" d="M10 24 C 58 24, 70 64, 150 68" />
-          <!-- 湿度：左下→右上（上昇） -->
-          <path class="bg-line humid" d="M10 68 C 62 68, 88 26, 150 22" />
-          <circle class="bg-dot" cx="150" cy="68" r="4" fill="#f6a83e" />
-          <circle class="bg-dot" cx="150" cy="22" r="4" fill="#7fd3ef" />
-        </svg>
       </div>
-      <div class="bl-text">ONSHITSU</div>
-      <div class="boot-pct" id="boot-pct">0%</div>
+      <div class="boot-pct" id="boot-pct">Loading... 0%</div>
     </div>
     <script>
       /* 読込%の演出：完了までは 92% までゆっくり近づき、__bootFinish で 100%→フェード。 */
@@ -215,7 +156,7 @@
           finished = false
         var el = document.getElementById('boot-pct')
         function render() {
-          if (el) el.textContent = Math.round(pct) + '%'
+          if (el) el.textContent = 'Loading... ' + Math.round(pct) + '%'
         }
         var iv = setInterval(function () {
           if (finished) return
