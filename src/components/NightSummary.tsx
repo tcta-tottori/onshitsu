@@ -1,4 +1,4 @@
-// ① ヒーロー：横スワイプで今日/明日/明後日の「夜（19〜翌6時）」サマリー。
+// ① ヒーロー：横スワイプで今日/明日/明後日の「夜（19〜翌7時）」サマリー。
 // high/low は色付きバッジ（センター合わせ）＋数字はカウントアップ、前夜との差を下に。
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Droplets, Thermometer } from 'lucide-react'
@@ -77,9 +77,34 @@ function Metric({
   )
 }
 
-function HeroCard({ card, rel, active }: { card: NightCard; rel: number; active: boolean }) {
+/**
+ * 現在時刻がこの夜ウィンドウ内なら、その時刻に当たる点の idx を返す（無ければ null）。
+ * 進行中の夜（今夜カード）で、タップ相当の初期ハイライトを出すために使う。
+ */
+function currentPointIndex(card: NightCard, now: Date): number | null {
+  const { start, end } = card.series.window
+  const t = now.getTime()
+  if (t < start.getTime() || t > end.getTime()) return null
+  const hour = now.getHours()
+  const p = card.series.points.find((pt) => pt.hour === hour)
+  return p ? p.idx : null
+}
+
+function HeroCard({
+  card,
+  rel,
+  active,
+  now,
+}: {
+  card: NightCard
+  rel: number
+  active: boolean
+  now: Date
+}) {
   const { label } = weatherFromCode(card.weatherCode)
   const dow = card.dateObj.getDay()
+  // 進行中の夜（今夜カード）だけ、現在時刻の点を初期ハイライト（タップ相当）する。
+  const activeIndex = rel === 0 ? currentPointIndex(card, now) : null
   // スワイプでこのカードがアクティブになるたびに play を増やし、
   // 数字（カウントアップ）とグラフ（曲線）を再マウントしてアニメを再生する。
   const [play, setPlay] = useState(0)
@@ -145,13 +170,13 @@ function HeroCard({ card, rel, active }: { card: NightCard; rel: number; active:
 
       <div className="hero-chart">
         <div className="hero-chart-head">夜の推移</div>
-        <NightChart key={`c${play}`} series={card.series} compact />
+        <NightChart key={`c${play}`} series={card.series} compact activeIndex={activeIndex} />
       </div>
     </section>
   )
 }
 
-export default function NightSummary({ cards }: { cards: NightCard[] }) {
+export default function NightSummary({ cards, now }: { cards: NightCard[]; now: Date }) {
   const [active, setActive] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
 
@@ -166,7 +191,7 @@ export default function NightSummary({ cards }: { cards: NightCard[] }) {
     <div className="hero-swipe">
       <div className="hero-track" ref={trackRef} onScroll={onScroll}>
         {cards.map((c, i) => (
-          <HeroCard key={i} card={c} rel={i} active={i === active} />
+          <HeroCard key={i} card={c} rel={i} active={i === active} now={now} />
         ))}
       </div>
       {cards.length > 1 && (

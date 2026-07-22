@@ -1,15 +1,15 @@
 // 「今夜」ウィンドウ算出ロジック
 //
-// - 現在が 6時以降        → 今夜 = 当日19:00 〜 翌日06:00
-// - 現在が 6時より前(0-5時) → 進行中の夜 = 前日19:00 〜 当日06:00
+// - 現在が 7時以降        → 今夜 = 当日19:00 〜 翌日07:00
+// - 現在が 7時より前(0-6時) → 進行中の夜 = 前日19:00 〜 当日07:00
 //
 // hourly の ISO 文字列（"2026-07-22T19:00" のような Asia/Tokyo ローカル時刻）を
-// この範囲で絞り込み、19,20,…,23,0,1,…,6 の順に並べる。
+// この範囲で絞り込み、19,20,…,23,0,1,…,7 の順に並べる。
 
 export interface NightWindow {
   /** 夜の開始日（19時が属する日）YYYY-MM-DD */
   startDate: string
-  /** 夜の終了日（06時が属する日）YYYY-MM-DD */
+  /** 夜の終了日（07時が属する日）YYYY-MM-DD */
   endDate: string
   /** 開始時刻 Date */
   start: Date
@@ -40,14 +40,14 @@ export function getNightWindow(now: Date = new Date()): NightWindow {
 
   let start: Date
   let end: Date
-  if (hour < 6) {
-    // 深夜〜早朝：進行中の夜 = 前日19時 〜 当日6時
+  if (hour < 7) {
+    // 深夜〜早朝：進行中の夜 = 前日19時 〜 当日7時
     start = atHour(now, -1, 19)
-    end = atHour(now, 0, 6)
+    end = atHour(now, 0, 7)
   } else {
-    // 6時以降：今夜 = 当日19時 〜 翌日6時
+    // 7時以降：今夜 = 当日19時 〜 翌日7時
     start = atHour(now, 0, 19)
-    end = atHour(now, 1, 6)
+    end = atHour(now, 1, 7)
   }
 
   return {
@@ -69,7 +69,7 @@ export function parseHourly(iso: string): Date {
 
 /**
  * hourly 配列（time[] とその値）を今夜ウィンドウで絞り込むためのインデックスを返す。
- * 17→6 の時系列順（配列は元々昇順なので、範囲内のインデックスをそのまま返せばよい）。
+ * 19→7 の時系列順（配列は元々昇順なので、範囲内のインデックスをそのまま返せばよい）。
  */
 export function nightIndices(times: string[], win: NightWindow): number[] {
   const out: number[] = []

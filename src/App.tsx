@@ -133,7 +133,7 @@ export default function App() {
         {state.status === 'ready' && derived && (
           <>
             <Reveal>
-              <NightSummary cards={derived.cards} />
+              <NightSummary cards={derived.cards} now={nowRef.current} />
             </Reveal>
 
             {derived.aircon.available && (
