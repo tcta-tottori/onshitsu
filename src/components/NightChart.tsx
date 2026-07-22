@@ -21,7 +21,7 @@ const HUMID = '#7fd3ef'
 const GRID = 'rgba(255,255,255,0.05)'
 const AXIS_TXT = '#93a1bd'
 
-/** X軸カスタム tick：時刻＋天気アイコン＋降水確率 */
+/** X軸カスタム tick：時刻＋天気アイコン＋降水確率。2時間ごと（偶数idx）のみ表示。 */
 function WxTick(props: {
   x?: number
   y?: number
@@ -31,14 +31,16 @@ function WxTick(props: {
   const { x = 0, y = 0, payload, points } = props
   const p = payload ? points[payload.value] : undefined
   if (!p) return null
+  // 横軸は2時間単位で表示（タップ時のツールチップは全時刻＝1時間単位）
+  if (p.idx % 2 !== 0) return null
   const { Icon } = weatherFromCode(p.weatherCode)
   const showPop = p.pop !== null && p.pop >= 10 // 10%未満は省いてノイズを減らす
 
   return (
-    <foreignObject x={x - 14} y={y + 4} width={28} height={40}>
+    <foreignObject x={x - 15} y={y + 4} width={30} height={40}>
       <div className="tick-wx">
         <span className="tick-hour">{p.hour}</span>
-        <Icon size={13} strokeWidth={2} />
+        <Icon size={14} strokeWidth={2} />
         <span className="tick-pop">{showPop ? `${Math.round(p.pop as number)}%` : ''}</span>
       </div>
     </foreignObject>
@@ -60,12 +62,23 @@ function WxTooltip({ active, payload }: TooltipProps<number, string>) {
   )
 }
 
-/** 湿度軸の範囲：0固定ではなく、データに5%刻みで余白を付けて 0–100 にクランプ */
-const humidLow = (min: number) => Math.max(0, Math.floor((min - 8) / 5) * 5)
-const humidHigh = (max: number) => Math.min(100, Math.ceil((max + 8) / 5) * 5)
+/** [lo, hi] を4目盛（3等分）に。両軸で同じ本数・同じ高さ位置に揃える。 */
+function fourTicks(lo: number, hi: number): number[] {
+  return [0, 1, 2, 3].map((i) => lo + ((hi - lo) * i) / 3)
+}
 
 export default function NightChart({ series }: { series: NightSeries }) {
   const { points } = series
+
+  // 軸レンジ（気温・湿度とも4目盛で高さ位置を揃える）
+  const temps = points.map((p) => p.temp).filter((v): v is number => v !== null)
+  const hums = points.map((p) => p.humidity).filter((v): v is number => v !== null)
+  const tLo = temps.length ? Math.floor(Math.min(...temps) - 1) : 0
+  const tHi = temps.length ? Math.ceil(Math.max(...temps) + 1) : 10
+  const hLo = hums.length ? Math.max(0, Math.floor((Math.min(...hums) - 5) / 5) * 5) : 0
+  const hHi = hums.length ? Math.min(100, Math.ceil((Math.max(...hums) + 5) / 5) * 5) : 100
+  const tempTicks = fourTicks(tLo, tHi)
+  const humTicks = fourTicks(hLo, hHi)
 
   return (
     <section className="card chart-card" aria-label="今夜の気温・湿度の推移">
@@ -99,7 +112,7 @@ export default function NightChart({ series }: { series: NightSeries }) {
             </filter>
           </defs>
 
-          <CartesianGrid stroke={GRID} vertical={false} />
+          <CartesianGrid stroke={GRID} vertical={false} syncWithTicks />
           <XAxis
             dataKey="idx"
             tickLine={false}
@@ -108,31 +121,31 @@ export default function NightChart({ series }: { series: NightSeries }) {
             height={44}
             tick={(p) => <WxTick {...p} points={points} />}
           />
-          {/* 左軸：気温 */}
+          {/* 左軸：気温（4目盛） */}
           <YAxis
             yAxisId="temp"
             orientation="left"
-            domain={[(min: number) => Math.floor(min - 2), (max: number) => Math.ceil(max + 2)]}
-            allowDecimals={false}
-            tickCount={5}
+            domain={[tLo, tHi]}
+            ticks={tempTicks}
+            interval={0}
+            tickFormatter={(v: number) => `${Math.round(v)}°`}
             tick={{ fill: TEMP, fontSize: 11, fontWeight: 700 }}
             tickLine={false}
             axisLine={false}
             width={34}
-            unit="°"
           />
-          {/* 右軸：湿度（0固定にせずデータに合わせる） */}
+          {/* 右軸：湿度（気温と同じ4目盛・同じ高さ位置に揃える） */}
           <YAxis
             yAxisId="humid"
             orientation="right"
-            domain={[humidLow, humidHigh]}
-            allowDecimals={false}
-            tickCount={5}
+            domain={[hLo, hHi]}
+            ticks={humTicks}
+            interval={0}
+            tickFormatter={(v: number) => `${Math.round(v)}%`}
             tick={{ fill: HUMID, fontSize: 11, fontWeight: 700 }}
             tickLine={false}
             axisLine={false}
             width={38}
-            unit="%"
           />
           <Tooltip content={<WxTooltip />} cursor={{ stroke: AXIS_TXT, strokeDasharray: '3 3' }} />
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
-import { deriveDaily, deriveNight, deriveToday, todayStr } from './lib/derive'
+import { deriveDaily, deriveNight, deriveNightCards, todayStr } from './lib/derive'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
@@ -44,8 +44,8 @@ export default function App() {
     const now = nowRef.current
     const night = deriveNight(state.data, now, state.data.hourly.precipitation_probability)
     const daily = deriveDaily(state.data, todayStr(now))
-    const today = deriveToday(state.data, now)
-    return { night, daily, today }
+    const cards = deriveNightCards(state.data, now, 3)
+    return { night, daily, cards }
   }, [state])
 
   const retry = () => setReloadKey((k) => k + 1)
@@ -88,15 +88,15 @@ export default function App() {
 
         {state.status === 'ready' && derived && (
           <>
-            <NightSummary today={derived.today} />
+            <NightSummary cards={derived.cards} />
 
             <div className="sec-head">
-              <h2>Tonight</h2>
+              <h2>今夜の推移</h2>
             </div>
             <NightChart series={derived.night} />
 
             <div className="sec-head">
-              <h2>Upcoming</h2>
+              <h2>明日以降の予報</h2>
             </div>
             <ForecastTable rows={derived.daily} />
           </>

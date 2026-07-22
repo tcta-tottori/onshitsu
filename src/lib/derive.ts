@@ -103,56 +103,81 @@ export function todayStr(now: Date = new Date()): string {
   return `${y}-${m}-${d}`
 }
 
-/** ① ヒーロー用：今日の気温・湿度の上下限と、昨日との差 */
-export interface TodaySummary {
+/** ① ヒーロー用：ある夜（19〜翌6時）の気温・湿度の上下限と、前夜との差 */
+export interface NightCard {
+  /** 夜の開始日（＝その晩の日付） */
   dateObj: Date
   weatherCode: number | null
   tempHigh: number | null
   tempLow: number | null
   humHigh: number | null
   humLow: number | null
-  /** 昨日との差（今日 − 昨日、整数）。欠損時 null */
+  /** 前夜との差（今夜 − 前夜、整数）。欠損時 null */
   tempHighDiff: number | null
   tempLowDiff: number | null
   humHighDiff: number | null
   humLowDiff: number | null
 }
 
+const DAY_MS = 86_400_000
+
+/** hourly を [startMs, endMs] で絞り、気温・湿度の min/max を返す（夜の期間のみ集計） */
+function windowMinMax(data: WeatherData, startMs: number, endMs: number) {
+  const t: Array<number | null> = []
+  const h: Array<number | null> = []
+  const { time, temperature_2m, relative_humidity_2m } = data.hourly
+  for (let i = 0; i < time.length; i++) {
+    const ms = parseHourly(time[i]).getTime()
+    if (ms >= startMs && ms <= endMs) {
+      t.push(temperature_2m[i])
+      h.push(relative_humidity_2m[i])
+    }
+  }
+  return { temp: minMax(t), hum: minMax(h) }
+}
+
+function dateKeyOf(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`
+}
+
 /**
- * 今日の気温・湿度の上下限を daily / hourly から取り出し、昨日との差を添える。
- * past_days=1 で昨日分も取得しているため差分が計算できる。
+ * 今夜を起点に count 日分の「夜（19〜翌6時）」サマリーを作る。
+ * 上下限は夜の期間の hourly のみから算出（日中データは含めない）。
+ * 差分は前夜（−24h）との比較。
  */
-export function deriveToday(data: WeatherData, now: Date = new Date()): TodaySummary {
-  const today = todayStr(now)
-  const yesterday = todayStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))
-  const humMap = dailyHumidityMap(data.hourly.time, data.hourly.relative_humidity_2m)
-  const d = data.daily
-  const ti = d.time.indexOf(today)
-  const yi = d.time.indexOf(yesterday)
-
-  const tH = ti >= 0 ? d.temperature_2m_max[ti] ?? null : null
-  const tL = ti >= 0 ? d.temperature_2m_min[ti] ?? null : null
-  const yH = yi >= 0 ? d.temperature_2m_max[yi] ?? null : null
-  const yL = yi >= 0 ? d.temperature_2m_min[yi] ?? null : null
-  const hToday = humMap.get(today)
-  const hYest = humMap.get(yesterday)
-
+export function deriveNightCards(
+  data: WeatherData,
+  now: Date = new Date(),
+  count = 3,
+): NightCard[] {
+  const base = getNightWindow(now)
   const diff = (a: number | null | undefined, b: number | null | undefined): number | null =>
     a === null || a === undefined || b === null || b === undefined
       ? null
       : Math.round(a) - Math.round(b)
 
-  const [y, mo, da] = today.split('-').map(Number)
-  return {
-    dateObj: new Date(y, mo - 1, da),
-    weatherCode: ti >= 0 ? d.weather_code[ti] ?? null : null,
-    tempHigh: tH,
-    tempLow: tL,
-    humHigh: hToday?.max ?? null,
-    humLow: hToday?.min ?? null,
-    tempHighDiff: diff(tH, yH),
-    tempLowDiff: diff(tL, yL),
-    humHighDiff: diff(hToday?.max, hYest?.max),
-    humLowDiff: diff(hToday?.min, hYest?.min),
+  const cards: NightCard[] = []
+  for (let k = 0; k < count; k++) {
+    const startMs = base.start.getTime() + k * DAY_MS
+    const endMs = base.end.getTime() + k * DAY_MS
+    const cur = windowMinMax(data, startMs, endMs)
+    const prev = windowMinMax(data, startMs - DAY_MS, endMs - DAY_MS)
+    const startDate = new Date(startMs)
+    const di = data.daily.time.indexOf(dateKeyOf(startDate))
+    cards.push({
+      dateObj: startDate,
+      weatherCode: di >= 0 ? data.daily.weather_code[di] ?? null : null,
+      tempHigh: cur.temp?.max ?? null,
+      tempLow: cur.temp?.min ?? null,
+      humHigh: cur.hum?.max ?? null,
+      humLow: cur.hum?.min ?? null,
+      tempHighDiff: diff(cur.temp?.max, prev.temp?.max),
+      tempLowDiff: diff(cur.temp?.min, prev.temp?.min),
+      humHighDiff: diff(cur.hum?.max, prev.hum?.max),
+      humLowDiff: diff(cur.hum?.min, prev.hum?.min),
+    })
   }
+  return cards
 }

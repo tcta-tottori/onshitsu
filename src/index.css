@@ -320,15 +320,53 @@ a {
 /* =========================================================================
    ① ヒーロー（今夜サマリー）
    ========================================================================= */
+/* 横スワイプ（今日/明日/明後日） */
+.hero-swipe {
+  margin: 8px 0 4px;
+}
+.hero-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.hero-track::-webkit-scrollbar {
+  display: none;
+}
+.hero-track > .hero {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  margin: 0;
+}
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+.hd-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+.hd-dot.on {
+  width: 18px;
+  background: var(--temp-light);
+}
+
 .hero {
   position: relative;
   overflow: hidden;
   background: linear-gradient(160deg, #22314f 0%, #16233d 52%, #0b1224 100%);
   border-radius: 26px;
-  padding: 22px 22px 24px;
+  padding: 20px 20px 22px;
   color: #fff;
   box-shadow: var(--shadow-hero);
-  margin: 8px 0 4px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 /* ヒーロー背景：夜の帯（上=夕暮れ、下=夜明けを想起させる淡い光） */
@@ -382,13 +420,25 @@ a {
   font-weight: 700;
   color: var(--text-dim);
 }
-/* 右上：天気アイコン */
+/* 右上：大きい天気アイコン＋重ねた天気ラベル（右揃え） */
 .hero-wx {
+  position: relative;
   flex: 0 0 auto;
   color: #e6edff;
   display: inline-flex;
   align-items: center;
-  filter: drop-shadow(0 2px 10px rgba(180, 200, 255, 0.25));
+  filter: drop-shadow(0 3px 12px rgba(180, 200, 255, 0.28));
+}
+.hero-wx .wx-label {
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.7), 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 /* 気温・湿度の high/low を2枠で対比 */
@@ -401,16 +451,16 @@ a {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
-  padding: 14px 13px;
+  padding: 13px 14px 14px;
   min-width: 0;
 }
 .metric-head {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 12px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .metric.temp .metric-head {
   color: var(--temp-light);
@@ -422,7 +472,7 @@ a {
 .metric-pair {
   display: flex;
   align-items: flex-end;
-  gap: 14px;
+  gap: 16px;
 }
 .mcol {
   display: flex;
@@ -430,12 +480,12 @@ a {
   min-width: 0;
 }
 .mk {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-dim);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .mv {
   font-weight: 800;
@@ -445,16 +495,17 @@ a {
   white-space: nowrap;
 }
 .mv small {
-  font-size: 0.46em;
+  font-size: 0.42em;
   font-weight: 700;
   margin-left: 1px;
 }
 .mcol.hi .mv {
-  font-size: 34px;
+  font-size: 30px;
 }
 .mcol.lo .mv {
-  font-size: 21px;
+  font-size: 18px;
   color: var(--text-dim);
+  padding-bottom: 2px;
 }
 .metric.temp .mcol.hi .mv {
   color: var(--temp-light);
@@ -463,9 +514,9 @@ a {
   color: var(--humid-light);
 }
 .mdiff {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  margin-top: 5px;
+  margin-top: 6px;
   font-variant-numeric: tabular-nums;
 }
 .mdiff.up {

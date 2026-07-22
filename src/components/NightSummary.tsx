@@ -1,23 +1,23 @@
-// ① ヒーロー：TODAYバッジ・今日の日付/曜日・天気アイコンと、
-// 気温・湿度の high(大)/low(小)＋昨日との差を表示。
+// ① ヒーロー：横スワイプで今日/明日/明後日の「夜（19〜翌6時）」サマリー。
+// 各カード：バッジ・日付/曜日・大きい天気アイコン＋重ねた天気ラベル、
+// 気温/湿度の high(大)/low(小)＋前夜との差。
+import { useRef, useState } from 'react'
 import { Droplets, Thermometer } from 'lucide-react'
 import { weatherFromCode } from '../lib/weatherCode'
-import type { TodaySummary } from '../lib/derive'
+import type { NightCard } from '../lib/derive'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
+const BADGES = ['TODAY', '明日', '明後日']
 
 function round(v: number | null): string {
   return v === null ? '—' : String(Math.round(v))
 }
-
-/** 昨日差を符号付きで（+2 / -1 / ±0） */
 function fmtDiff(v: number | null, unit: string): string | null {
   if (v === null) return null
   if (v > 0) return `+${v}${unit}`
   if (v < 0) return `${v}${unit}`
   return `±0${unit}`
 }
-
 function DiffTag({ v, unit }: { v: number | null; unit: string }) {
   const t = fmtDiff(v, unit)
   if (t === null) return null
@@ -25,7 +25,6 @@ function DiffTag({ v, unit }: { v: number | null; unit: string }) {
   return <span className={`mdiff ${cls}`}>{t}</span>
 }
 
-/** high(左・大) / low(右・小) の対 */
 function Pair({
   kind,
   hi,
@@ -63,24 +62,24 @@ function Pair({
   )
 }
 
-export default function NightSummary({ today }: { today: TodaySummary }) {
-  const { Icon, label } = weatherFromCode(today.weatherCode)
-  const dow = today.dateObj.getDay()
-
+function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
+  const { Icon, label } = weatherFromCode(card.weatherCode)
+  const dow = card.dateObj.getDay()
   return (
-    <section className="hero" aria-label="今日のサマリー">
+    <section className="hero" aria-label={`${BADGES[rel] ?? ''}のサマリー`}>
       <div className="hero-head">
         <div className="hero-tl">
-          <span className="today-badge">TODAY</span>
+          <span className="today-badge">{BADGES[rel] ?? `+${rel}`}</span>
           <div className="hero-date2">
             <span className="hd-date">
-              {today.dateObj.getMonth() + 1}月{today.dateObj.getDate()}日
+              {card.dateObj.getMonth() + 1}月{card.dateObj.getDate()}日
             </span>
             <span className="hd-dow">{DOW[dow]}曜日</span>
           </div>
         </div>
         <div className="hero-wx" title={label}>
-          <Icon size={46} strokeWidth={1.6} aria-hidden="true" />
+          <Icon size={64} strokeWidth={1.5} aria-hidden="true" />
+          <span className="wx-label">{label}</span>
         </div>
       </div>
 
@@ -92,10 +91,10 @@ export default function NightSummary({ today }: { today: TodaySummary }) {
           </div>
           <Pair
             kind="temp"
-            hi={today.tempHigh}
-            lo={today.tempLow}
-            hiDiff={today.tempHighDiff}
-            loDiff={today.tempLowDiff}
+            hi={card.tempHigh}
+            lo={card.tempLow}
+            hiDiff={card.tempHighDiff}
+            loDiff={card.tempLowDiff}
             unit="°"
           />
         </div>
@@ -107,14 +106,43 @@ export default function NightSummary({ today }: { today: TodaySummary }) {
           </div>
           <Pair
             kind="humid"
-            hi={today.humHigh}
-            lo={today.humLow}
-            hiDiff={today.humHighDiff}
-            loDiff={today.humLowDiff}
+            hi={card.humHigh}
+            lo={card.humLow}
+            hiDiff={card.humHighDiff}
+            loDiff={card.humLowDiff}
             unit="%"
           />
         </div>
       </div>
     </section>
+  )
+}
+
+export default function NightSummary({ cards }: { cards: NightCard[] }) {
+  const [active, setActive] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
+
+  function onScroll() {
+    const el = trackRef.current
+    if (!el) return
+    const i = Math.round(el.scrollLeft / el.clientWidth)
+    if (i !== active) setActive(i)
+  }
+
+  return (
+    <div className="hero-swipe">
+      <div className="hero-track" ref={trackRef} onScroll={onScroll}>
+        {cards.map((c, i) => (
+          <HeroCard key={i} card={c} rel={i} />
+        ))}
+      </div>
+      {cards.length > 1 && (
+        <div className="hero-dots" aria-hidden="true">
+          {cards.map((_, i) => (
+            <span key={i} className={`hd-dot${i === active ? ' on' : ''}`} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
