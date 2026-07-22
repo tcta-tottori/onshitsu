@@ -3,7 +3,7 @@ import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNight, deriveNightCards, deriveNightForecast } from './lib/derive'
-import { adviseAircon } from './lib/aircon'
+import { adviseAircon, simulateAcNight } from './lib/aircon'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
@@ -49,7 +49,8 @@ export default function App() {
     const forecast = deriveNightForecast(state.data, now, 6)
     const cards = deriveNightCards(state.data, now, 3)
     const aircon = adviseAircon(night.points)
-    return { night, forecast, cards, aircon }
+    const acPoints = aircon.shouldUse ? simulateAcNight(night.points, aircon) : undefined
+    return { night, forecast, cards, aircon, acPoints }
   }, [state])
 
   // 初回の気象データ読込が終わったら起動ローダー（#boot）を隠す
@@ -114,7 +115,15 @@ export default function App() {
                 <h2>今夜の推移</h2>
               </div>
             </Reveal>
-            <NightChart series={derived.night} />
+            <NightChart
+              series={derived.night}
+              acPoints={derived.acPoints}
+              acNote={
+                derived.aircon.shouldUse
+                  ? `冷房29℃・約${derived.aircon.timerHours}時間タイマー使用時の室内の目安（21時〜${derived.aircon.offHour}時）`
+                  : undefined
+              }
+            />
 
             <Reveal>
               <div className="sec-head">

@@ -605,7 +605,7 @@ a {
 .ac-reco-item {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   color: var(--humid-light);
   flex: 1 1 0;
   min-width: 0;
@@ -614,12 +614,12 @@ a {
   flex: 0 0 auto;
 }
 .ac-reco-item .ac-k {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-dim);
 }
 .ac-reco-item .ac-v {
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -630,8 +630,14 @@ a {
 .ac-reco-item .ac-v small {
   font-size: 0.46em;
   font-weight: 700;
-  margin-left: 2px;
+  margin-left: 1px;
   color: var(--text-dim);
+}
+.ac-reco-sep {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  background: var(--border);
 }
 .ac-detail {
   font-size: 13px;
@@ -655,10 +661,44 @@ a {
 .chart-card {
   padding: 16px 8px 12px;
 }
+.chart-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 6px;
+  flex-wrap: wrap;
+}
+/* 予報／エアコン使用時 の切替 */
+.chart-seg {
+  display: inline-flex;
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+.chart-seg button {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.chart-seg button.on {
+  background: var(--humid);
+  color: #06222b;
+}
+.chart-acnote {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--humid-light);
+}
 .chart-legend {
   display: flex;
   gap: 16px;
-  padding: 0 12px 6px;
   font-size: 12px;
   font-weight: 700;
 }
