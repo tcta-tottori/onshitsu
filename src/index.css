@@ -302,7 +302,7 @@ a {
   }
 }
 
-/* グリッド・軸は即表示。塗り（グロー）と曲線（.nline）が一緒に少し遅れて下からゆっくり出現する。 */
+/* グリッド・軸は即表示。曲線（.nline）が少し遅れて下からゆっくり出現する。 */
 @keyframes lineRise {
   from {
     opacity: 0;
@@ -318,8 +318,29 @@ a {
   transform: translateY(18px);
   animation: lineRise 1.2s cubic-bezier(0.16, 0.7, 0.3, 1) 0.5s forwards;
 }
+
+/* 塗り（グロー .narea）は線から少しラグを置き、線（上端）から下へ垂れ下がるように出現する。 */
+@keyframes areaDrip {
+  from {
+    opacity: 0;
+    transform: scaleY(0.02);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+.narea {
+  opacity: 0;
+  transform: scaleY(0.02);
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: areaDrip 0.95s cubic-bezier(0.2, 0.7, 0.3, 1) 0.95s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nline {
+  .nline,
+  .narea {
     opacity: 1;
     transform: none;
     animation: none;

@@ -167,7 +167,7 @@ export default function NightChart({
             yAxisId="humid"
             type="monotone"
             dataKey="humidity"
-            className="nline"
+            className="narea"
             stroke="none"
             fill="url(#humidFill)"
             isAnimationActive={false}
@@ -177,14 +177,15 @@ export default function NightChart({
             yAxisId="temp"
             type="monotone"
             dataKey="temp"
-            className="nline"
+            className="narea"
             stroke="none"
             fill="url(#tempFill)"
             isAnimationActive={false}
             connectNulls
           />
 
-          {/* 発光する曲線。グリッド／軸は即表示し、塗り（グロー）と線は一緒に遅れて下から出現（.nline） */}
+          {/* 発光する曲線（.nline）。線は遅れて下から出現。塗り（グロー .narea）は
+              線から少しラグを置いて、線から下へ垂れ下がるように出現する。 */}
           <Line
             yAxisId="humid"
             type="monotone"
