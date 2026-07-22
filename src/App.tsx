@@ -1,8 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Bell, BellOff, RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNight, deriveNightCards, deriveNightForecast } from './lib/derive'
+import { weatherFromCode } from './lib/weatherCode'
+import {
+  formatNightBody,
+  isNotifyEnabled,
+  notifySupported,
+  requestPermission,
+  scheduleNightNotify,
+  setNotifyEnabled,
+  showNotification,
+  type NightNotifyData,
+} from './lib/notify'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
@@ -58,6 +69,53 @@ export default function App() {
 
   const retry = () => setReloadKey((k) => k + 1)
 
+  // --- 17時通知 ---
+  const [notifyOn, setNotifyOn] = useState(() => isNotifyEnabled())
+  // 最新の「今夜」サマリーをスケジューラから参照できるよう ref に保持
+  const notifyDataRef = useRef<NightNotifyData | null>(null)
+  useEffect(() => {
+    if (!derived) return
+    const c = derived.cards[0]
+    notifyDataRef.current = {
+      locationName: location.name,
+      tempHigh: c.tempHigh,
+      tempLow: c.tempLow,
+      humHigh: c.humHigh,
+      humLow: c.humLow,
+      weatherLabel: weatherFromCode(c.weatherCode).label,
+    }
+  }, [derived, location])
+
+  // ON の間だけ 17時通知をスケジュール（アプリが開いている間のみ動作）
+  useEffect(() => {
+    if (!notifyOn) return
+    return scheduleNightNotify(() => notifyDataRef.current)
+  }, [notifyOn])
+
+  const toggleNotify = useCallback(async () => {
+    if (notifyOn) {
+      setNotifyEnabled(false)
+      setNotifyOn(false)
+      return
+    }
+    const perm = await requestPermission()
+    if (perm === 'granted') {
+      setNotifyEnabled(true)
+      setNotifyOn(true)
+      const d = notifyDataRef.current
+      void showNotification(
+        '🌙 通知をオンにしました',
+        d
+          ? `毎日17時に今夜の予報をお知らせします。\n${formatNightBody(d)}`
+          : '毎日17時に今夜の予報をお知らせします。',
+      )
+    } else if (perm === 'denied') {
+      alert(
+        '通知がブロックされています。ブラウザ／端末の設定でこのサイトの通知を許可してください。',
+      )
+    }
+  }, [notifyOn])
+
   return (
     <div className="app">
       <header className="appbar">
@@ -73,6 +131,17 @@ export default function App() {
         </div>
         <span className="spacer" />
         <LocationPicker value={location} onChange={setLocation} />
+        {notifySupported() && (
+          <button
+            className={`tctrl-btn${notifyOn ? ' on' : ''}`}
+            onClick={toggleNotify}
+            aria-label={notifyOn ? '17時通知をオフにする' : '17時に今夜の予報を通知する'}
+            aria-pressed={notifyOn}
+            title={notifyOn ? '17時通知：オン' : '17時通知：オフ'}
+          >
+            {notifyOn ? <Bell size={19} strokeWidth={2.2} /> : <BellOff size={19} strokeWidth={2.2} />}
+          </button>
+        )}
       </header>
 
       <main className="screen">

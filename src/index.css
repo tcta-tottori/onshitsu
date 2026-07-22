@@ -158,6 +158,11 @@ a {
 .tctrl-btn:active {
   transform: scale(0.94);
 }
+.tctrl-btn.on {
+  background: linear-gradient(135deg, #fbc064, #f39d2c);
+  color: #3a2708;
+  border-color: transparent;
+}
 
 /* --- 地点ピッカー（ヘッダー直下の見出しボタン＋ボトム/ドロップシート） --- */
 .loc-pick {
