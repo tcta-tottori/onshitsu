@@ -1,5 +1,5 @@
-// ③ 明日以降テーブル：各行は 日付＋天気アイコン ／ 気温・湿度を2行（アイコン付き）／
-// 右側にその夜のミニ推移グラフ。数値はカウントアップ、スクロールで浮かび上がる。
+// ③ 明日以降テーブル：各行は 日付 ／ 気温・湿度(アイコン付き2行) ／ ミニ推移グラフ ／
+// 天気アイコン(右端)。数値はカウントアップ、スクロールで浮かび上がる。
 import { Droplets, Thermometer } from 'lucide-react'
 import { weatherFromCode } from '../lib/weatherCode'
 import type { NightForecastRow } from '../lib/derive'
@@ -9,40 +9,6 @@ import MiniTrend from './MiniTrend'
 import Reveal from './Reveal'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
-
-/** アイコン付き1行（気温 or 湿度）：high | 区切り線 | low */
-function Line({
-  kind,
-  hi,
-  lo,
-  unit,
-}: {
-  kind: 'temp' | 'humid'
-  hi: number | null
-  lo: number | null
-  unit: string
-}) {
-  return (
-    <div className={`fline ${kind}`}>
-      <span className="fl-ic">
-        {kind === 'temp' ? (
-          <Thermometer size={15} strokeWidth={2.2} />
-        ) : (
-          <Droplets size={15} strokeWidth={2.2} />
-        )}
-      </span>
-      <span className="fl-hi">
-        <CountUp value={hi} />
-        <small>{unit}</small>
-      </span>
-      <span className="fl-sep" aria-hidden="true" />
-      <span className="fl-lo">
-        <CountUp value={lo} />
-        <small>{unit}</small>
-      </span>
-    </div>
-  )
-}
 
 export default function ForecastTable({ rows }: { rows: NightForecastRow[] }) {
   if (!rows.length) {
@@ -70,17 +36,40 @@ export default function ForecastTable({ rows }: { rows: NightForecastRow[] }) {
                 </span>
               </div>
 
-              <div className="frow-wx" title={label}>
-                <WeatherIcon code={r.weatherCode} size={28} strokeWidth={1.7} />
-              </div>
-
               <div className="frow-lines">
-                <Line kind="temp" hi={r.tempHigh} lo={r.tempLow} unit="°" />
-                <Line kind="humid" hi={r.humHigh} lo={r.humLow} unit="%" />
+                <span className="fl-ic temp">
+                  <Thermometer size={15} strokeWidth={2.2} />
+                </span>
+                <span className="fl-hi temp">
+                  <CountUp value={r.tempHigh} />
+                  <small>°</small>
+                </span>
+                <span className="fl-sep" aria-hidden="true" />
+                <span className="fl-lo">
+                  <CountUp value={r.tempLow} />
+                  <small>°</small>
+                </span>
+
+                <span className="fl-ic humid">
+                  <Droplets size={15} strokeWidth={2.2} />
+                </span>
+                <span className="fl-hi humid">
+                  <CountUp value={r.humHigh} />
+                  <small>%</small>
+                </span>
+                <span className="fl-sep" aria-hidden="true" />
+                <span className="fl-lo">
+                  <CountUp value={r.humLow} />
+                  <small>%</small>
+                </span>
               </div>
 
               <div className="frow-mini" aria-hidden="true">
                 <MiniTrend temps={r.temps} hums={r.hums} />
+              </div>
+
+              <div className="frow-wx" title={label}>
+                <WeatherIcon code={r.weatherCode} size={30} strokeWidth={1.7} />
               </div>
             </div>
           </Reveal>

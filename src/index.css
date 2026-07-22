@@ -763,7 +763,7 @@ a {
 }
 .frow {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
   background: var(--surface);
@@ -794,77 +794,76 @@ a {
 .frow-dow.sun {
   color: #fb7185;
 }
-.frow-wx {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #e6edff;
-  flex: 0 0 auto;
-}
-/* 気温・湿度を2行（アイコン付き）で */
+/* 気温・湿度を2行（アイコン付き）。列を揃えて整える。 */
 .frow-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 6px;
+  justify-self: start;
   min-width: 0;
 }
-.fline {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-variant-numeric: tabular-nums;
-}
-.fline .fl-ic {
+.fl-ic {
   display: inline-flex;
-  flex: 0 0 auto;
 }
-.fline.temp .fl-ic {
+.fl-ic.temp {
   color: var(--temp-light);
 }
-.fline.humid .fl-ic {
+.fl-ic.humid {
   color: var(--humid-light);
 }
-.fline .fl-hi {
-  font-size: 16px;
+.fl-hi {
+  justify-self: end;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
-.fline.temp .fl-hi {
+.fl-hi.temp {
   color: var(--temp-light);
 }
-.fline.humid .fl-hi {
+.fl-hi.humid {
   color: var(--humid-light);
 }
-.fline .fl-lo {
-  font-size: 13px;
+.fl-lo {
+  justify-self: start;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
-.fline .fl-hi small,
-.fline .fl-lo small {
-  font-size: 0.55em;
+.fl-hi small,
+.fl-lo small {
+  font-size: 0.52em;
   font-weight: 700;
   margin-left: 1px;
 }
-.fline .fl-sep {
-  flex: 0 0 auto;
+.fl-sep {
+  justify-self: center;
   width: 1px;
-  height: 13px;
+  height: 14px;
   background: var(--border);
 }
-/* 右側のミニ推移グラフ */
+/* ミニ推移グラフ（天気アイコンの左） */
 .frow-mini {
   flex: 0 0 auto;
-  width: 66px;
-  height: 34px;
-  opacity: 0.95;
+  width: 72px;
+  height: 38px;
 }
 .mini-trend {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+}
+/* 天気アイコン（右端） */
+.frow-wx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #e6edff;
+  flex: 0 0 auto;
 }
 
 /* =========================================================================
