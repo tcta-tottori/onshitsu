@@ -1,6 +1,5 @@
-// ③ 明日以降テーブル：daily を 1日1行で。気温上下限・湿度上下限（hourly集計）・
-// 天候・降水確率を並べる。
-import { Droplets, Thermometer, Umbrella } from 'lucide-react'
+// ③ 明日以降テーブル：日付／気温・湿度（横並び・最高大・最低小）／天気アイコン(右)。
+// 降水確率は廃止。
 import { weatherFromCode } from '../lib/weatherCode'
 import type { DailyRow } from '../lib/derive'
 
@@ -8,6 +7,32 @@ const DOW = ['日', '月', '火', '水', '木', '金', '土']
 
 function round(v: number | null): string {
   return v === null ? '—' : String(Math.round(v))
+}
+
+/** 最高(大)/最低(小) の縦積み */
+function Metric({
+  kind,
+  hi,
+  lo,
+  unit,
+}: {
+  kind: 'temp' | 'humid'
+  hi: number | null
+  lo: number | null
+  unit: string
+}) {
+  return (
+    <div className={`fg ${kind}`}>
+      <span className="fg-hi">
+        {round(hi)}
+        <small>{unit}</small>
+      </span>
+      <span className="fg-lo">
+        {round(lo)}
+        {unit}
+      </span>
+    </div>
+  )
 }
 
 export default function ForecastTable({ rows }: { rows: DailyRow[] }) {
@@ -30,41 +55,18 @@ export default function ForecastTable({ rows }: { rows: DailyRow[] }) {
           <div className="frow" key={r.date}>
             <div className="frow-date">
               <span className="frow-day">{r.dateObj.getDate()}</span>
-              <span
-                className={`frow-dow${dow === 6 ? ' sat' : dow === 0 ? ' sun' : ''}`}
-              >
+              <span className={`frow-dow${dow === 6 ? ' sat' : dow === 0 ? ' sun' : ''}`}>
                 {DOW[dow]}
               </span>
             </div>
 
+            <div className="frow-metrics2">
+              <Metric kind="temp" hi={r.tempMax} lo={r.tempMin} unit="°" />
+              <Metric kind="humid" hi={r.humidityMax} lo={r.humidityMin} unit="%" />
+            </div>
+
             <div className="frow-wx" title={label}>
-              <Icon size={26} strokeWidth={1.8} aria-hidden="true" />
-              <span className="wx-label">{label}</span>
-            </div>
-
-            <div className="frow-metrics">
-              <div className="mrow temp">
-                <span className="mk">
-                  <Thermometer size={13} strokeWidth={2.2} />
-                </span>
-                <span className="mv-lo">{round(r.tempMin)}°</span>
-                <span className="dash">/</span>
-                <span className="mv-hi">{round(r.tempMax)}°</span>
-              </div>
-              <div className="mrow humid">
-                <span className="mk">
-                  <Droplets size={13} strokeWidth={2.2} />
-                </span>
-                <span className="mv-lo">{round(r.humidityMin)}%</span>
-                <span className="dash">/</span>
-                <span className="mv-hi">{round(r.humidityMax)}%</span>
-              </div>
-            </div>
-
-            <div className="frow-pop" title="降水確率">
-              <Umbrella size={13} strokeWidth={2.2} aria-hidden="true" />
-              <span className="pop-v">{r.pop === null ? '—' : `${Math.round(r.pop)}`}</span>
-              <span className="pop-k">%</span>
+              <Icon size={30} strokeWidth={1.7} aria-hidden="true" />
             </div>
           </div>
         )

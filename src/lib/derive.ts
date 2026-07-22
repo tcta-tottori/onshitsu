@@ -102,3 +102,57 @@ export function todayStr(now: Date = new Date()): string {
   const d = String(now.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
+
+/** ① ヒーロー用：今日の気温・湿度の上下限と、昨日との差 */
+export interface TodaySummary {
+  dateObj: Date
+  weatherCode: number | null
+  tempHigh: number | null
+  tempLow: number | null
+  humHigh: number | null
+  humLow: number | null
+  /** 昨日との差（今日 − 昨日、整数）。欠損時 null */
+  tempHighDiff: number | null
+  tempLowDiff: number | null
+  humHighDiff: number | null
+  humLowDiff: number | null
+}
+
+/**
+ * 今日の気温・湿度の上下限を daily / hourly から取り出し、昨日との差を添える。
+ * past_days=1 で昨日分も取得しているため差分が計算できる。
+ */
+export function deriveToday(data: WeatherData, now: Date = new Date()): TodaySummary {
+  const today = todayStr(now)
+  const yesterday = todayStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))
+  const humMap = dailyHumidityMap(data.hourly.time, data.hourly.relative_humidity_2m)
+  const d = data.daily
+  const ti = d.time.indexOf(today)
+  const yi = d.time.indexOf(yesterday)
+
+  const tH = ti >= 0 ? d.temperature_2m_max[ti] ?? null : null
+  const tL = ti >= 0 ? d.temperature_2m_min[ti] ?? null : null
+  const yH = yi >= 0 ? d.temperature_2m_max[yi] ?? null : null
+  const yL = yi >= 0 ? d.temperature_2m_min[yi] ?? null : null
+  const hToday = humMap.get(today)
+  const hYest = humMap.get(yesterday)
+
+  const diff = (a: number | null | undefined, b: number | null | undefined): number | null =>
+    a === null || a === undefined || b === null || b === undefined
+      ? null
+      : Math.round(a) - Math.round(b)
+
+  const [y, mo, da] = today.split('-').map(Number)
+  return {
+    dateObj: new Date(y, mo - 1, da),
+    weatherCode: ti >= 0 ? d.weather_code[ti] ?? null : null,
+    tempHigh: tH,
+    tempLow: tL,
+    humHigh: hToday?.max ?? null,
+    humLow: hToday?.min ?? null,
+    tempHighDiff: diff(tH, yH),
+    tempLowDiff: diff(tL, yL),
+    humHighDiff: diff(hToday?.max, hYest?.max),
+    humLowDiff: diff(hToday?.min, hYest?.min),
+  }
+}

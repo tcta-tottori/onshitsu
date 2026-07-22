@@ -351,29 +351,47 @@ a {
   gap: 10px;
   margin-bottom: 18px;
 }
-.hero-eyebrow {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
+/* 左上：TODAY バッジ＋日付/曜日 */
+.hero-tl {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.hero-title {
-  font-size: 20px;
+.today-badge {
+  align-self: flex-start;
+  font-size: 11px;
   font-weight: 800;
-  margin: 2px 0 0;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.14em;
+  color: #0b1224;
+  background: linear-gradient(120deg, var(--temp-light), var(--temp));
+  padding: 4px 12px;
+  border-radius: 999px;
 }
-.hero-date {
-  font-size: 12px;
+.hero-date2 {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.hd-date {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.hd-dow {
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.08);
-  padding: 6px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-  flex: 0 0 auto;
 }
-/* 気温・湿度の上下限を2枠で大きく対比 */
+/* 右上：天気アイコン */
+.hero-wx {
+  flex: 0 0 auto;
+  color: #e6edff;
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 2px 10px rgba(180, 200, 255, 0.25));
+}
+
+/* 気温・湿度の high/low を2枠で対比 */
 .hero-metrics {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -383,7 +401,7 @@ a {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
-  padding: 15px 12px;
+  padding: 14px 13px;
   min-width: 0;
 }
 .metric-head {
@@ -392,7 +410,7 @@ a {
   gap: 7px;
   font-size: 13px;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .metric.temp .metric-head {
   color: var(--temp-light);
@@ -400,60 +418,64 @@ a {
 .metric.humid .metric-head {
   color: var(--humid-light);
 }
+/* high(左・大) / low(右・小) */
 .metric-pair {
   display: flex;
-  align-items: baseline;
-  gap: 9px;
+  align-items: flex-end;
+  gap: 14px;
 }
-.metric-col {
+.mcol {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
-.metric-k {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
-  letter-spacing: 0.04em;
-}
-.metric-v {
-  font-size: 33px;
+.mk {
+  font-size: 10px;
   font-weight: 800;
-  line-height: 1.02;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+.mv {
+  font-weight: 800;
+  line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.metric-v small {
-  font-size: 15px;
+.mv small {
+  font-size: 0.46em;
   font-weight: 700;
   margin-left: 1px;
 }
-.metric.temp .metric-v.hi {
-  color: var(--temp-light);
+.mcol.hi .mv {
+  font-size: 34px;
 }
-.metric.humid .metric-v.hi {
-  color: var(--humid-light);
-}
-.metric-sep {
-  align-self: stretch;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.1);
-}
-/* 現在の実況（AMeDAS 等・任意） */
-.hero-now {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  gap: 18px;
-  font-size: 13px;
+.mcol.lo .mv {
+  font-size: 21px;
   color: var(--text-dim);
 }
-.hero-now b {
-  color: #fff;
-  font-weight: 800;
-  font-size: 15px;
+.metric.temp .mcol.hi .mv {
+  color: var(--temp-light);
+}
+.metric.humid .mcol.hi .mv {
+  color: var(--humid-light);
+}
+.mdiff {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.mdiff.up {
+  color: #fca5a5;
+}
+.mdiff.down {
+  color: #93c5fd;
+}
+.mdiff.flat {
+  color: var(--text-dim);
 }
 
 /* =========================================================================
@@ -559,23 +581,23 @@ a {
 }
 .frow {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
-  padding: 13px 15px;
+  padding: 14px 16px;
 }
 .frow-date {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
-  min-width: 42px;
+  line-height: 1.15;
+  min-width: 34px;
 }
 .frow-day {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -590,69 +612,46 @@ a {
 .frow-dow.sun {
   color: #fb7185;
 }
-.frow-wx {
+/* 気温・湿度を横並び（最高大・最低小） */
+.frow-metrics2 {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: var(--text-dim);
-  min-width: 46px;
-}
-.frow-wx .wx-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.frow-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: baseline;
+  gap: 20px;
   min-width: 0;
 }
-.mrow {
+.fg {
   display: flex;
-  align-items: center;
-  gap: 7px;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.fg-hi {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.fg-hi small {
+  font-size: 0.5em;
+  font-weight: 700;
+  margin-left: 1px;
+}
+.fg-lo {
   font-size: 13px;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.mrow .mk {
-  display: inline-flex;
-  align-items: center;
   color: var(--text-dim);
 }
-.mrow.temp .mv-hi {
+.fg.temp .fg-hi {
   color: var(--temp-light);
 }
-.mrow.temp .mv-lo,
-.mrow.humid .mv-lo {
-  color: var(--text-dim);
-}
-.mrow.humid .mv-hi {
+.fg.humid .fg-hi {
   color: var(--humid-light);
 }
-.mrow .dash {
-  color: var(--text-dim);
-  opacity: 0.6;
-}
-.frow-pop {
-  display: flex;
-  flex-direction: column;
+.frow-wx {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  color: #e6edff;
   flex: 0 0 auto;
-  color: var(--humid-light);
-}
-.frow-pop .pop-v {
-  font-size: 15px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-.frow-pop .pop-k {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--text-dim);
 }
 
 /* =========================================================================

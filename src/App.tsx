@@ -1,30 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Moon, RefreshCw, Sun } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
-import { fetchAmedasNow, type AmedasNow } from './api/jma'
 import { DEFAULT_LOCATION } from './lib/locations'
-import { deriveDaily, deriveNight, todayStr } from './lib/derive'
+import { deriveDaily, deriveNight, deriveToday, todayStr } from './lib/derive'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
 import LocationPicker from './components/LocationPicker'
-
-type Theme = 'light' | 'dark'
-
-function currentTheme(): Theme {
-  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
-}
-
-function applyTheme(t: Theme) {
-  document.documentElement.setAttribute('data-theme', t)
-  try {
-    localStorage.setItem('os-theme', t)
-  } catch {
-    /* localStorage 不可環境では無視 */
-  }
-  const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', t === 'dark' ? '#0a0a12' : '#eef1fb')
-}
 
 type LoadState =
   | { status: 'loading' }
@@ -34,20 +16,10 @@ type LoadState =
 export default function App() {
   const [location, setLocation] = useState<Location>(DEFAULT_LOCATION)
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  const [amedas, setAmedas] = useState<AmedasNow | null>(null)
-  const [theme, setTheme] = useState<Theme>(() => currentTheme())
   // 再取得トリガ
   const [reloadKey, setReloadKey] = useState(0)
   // now は再取得のたびに更新（夜ウィンドウ判定用）
   const nowRef = useRef(new Date())
-
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const next: Theme = prev === 'dark' ? 'light' : 'dark'
-      applyTheme(next)
-      return next
-    })
-  }, [])
 
   // 主軸データ取得
   useEffect(() => {
@@ -67,29 +39,13 @@ export default function App() {
     return () => ctrl.abort()
   }, [location, reloadKey])
 
-  // 補完：AMeDAS 実況（任意・失敗は無視。デフォルト地点=鳥取市のときのみ）
-  useEffect(() => {
-    if (location.id !== 'tottori') {
-      setAmedas(null)
-      return
-    }
-    const ctrl = new AbortController()
-    fetchAmedasNow(new Date(), undefined, ctrl.signal)
-      .then((r) => setAmedas(r))
-      .catch(() => setAmedas(null))
-    return () => ctrl.abort()
-  }, [location, reloadKey])
-
   const derived = useMemo(() => {
     if (state.status !== 'ready') return null
     const now = nowRef.current
-    const night = deriveNight(
-      state.data,
-      now,
-      state.data.hourly.precipitation_probability,
-    )
+    const night = deriveNight(state.data, now, state.data.hourly.precipitation_probability)
     const daily = deriveDaily(state.data, todayStr(now))
-    return { night, daily }
+    const today = deriveToday(state.data, now)
+    return { night, daily, today }
   }, [state])
 
   const retry = () => setReloadKey((k) => k + 1)
@@ -109,21 +65,13 @@ export default function App() {
         </div>
         <span className="spacer" />
         <LocationPicker value={location} onChange={setLocation} />
-        <button
-          className="tctrl-btn"
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
-          aria-pressed={theme === 'dark'}
-        >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
       </header>
 
       <main className="screen">
         {state.status === 'loading' && (
           <div className="state" role="status" aria-live="polite">
             <div className="spinner" aria-hidden="true" />
-            今夜の予報を読み込んでいます…
+            予報を読み込んでいます…
           </div>
         )}
 
@@ -140,19 +88,15 @@ export default function App() {
 
         {state.status === 'ready' && derived && (
           <>
-            <NightSummary
-              series={derived.night}
-              locationName={location.name}
-              now={amedas}
-            />
+            <NightSummary today={derived.today} />
 
             <div className="sec-head">
-              <h2>今夜の推移</h2>
+              <h2>Tonight</h2>
             </div>
             <NightChart series={derived.night} />
 
             <div className="sec-head">
-              <h2>明日以降の予報</h2>
+              <h2>Upcoming</h2>
             </div>
             <ForecastTable rows={derived.daily} />
           </>
@@ -172,7 +116,6 @@ export default function App() {
             気象庁
           </a>
         </div>
-        <div>降水確率・実況は気象庁の公開データを利用しています。</div>
       </footer>
     </div>
   )

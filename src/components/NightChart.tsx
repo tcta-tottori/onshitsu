@@ -164,8 +164,8 @@ export default function NightChart({ series }: { series: NightSeries }) {
             stroke={HUMID}
             strokeWidth={2.6}
             strokeLinecap="round"
-            dot={{ r: 2, fill: HUMID, strokeWidth: 0 }}
-            activeDot={{ r: 4.5, stroke: '#0a1120', strokeWidth: 2 }}
+            dot={false}
+            activeDot={{ r: 4.5, fill: HUMID, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
             isAnimationActive={false}
             style={{ filter: 'url(#lineGlow)' }}
@@ -177,8 +177,8 @@ export default function NightChart({ series }: { series: NightSeries }) {
             stroke={TEMP}
             strokeWidth={2.6}
             strokeLinecap="round"
-            dot={{ r: 2, fill: TEMP, strokeWidth: 0 }}
-            activeDot={{ r: 4.5, stroke: '#0a1120', strokeWidth: 2 }}
+            dot={false}
+            activeDot={{ r: 4.5, fill: TEMP, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
             isAnimationActive={false}
             style={{ filter: 'url(#lineGlow)' }}
