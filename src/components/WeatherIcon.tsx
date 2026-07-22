@@ -11,20 +11,7 @@ import {
   CloudSnow,
   Moon,
 } from 'lucide-react'
-
-type Cat = 'clear' | 'partly' | 'cloud' | 'fog' | 'rain' | 'snow' | 'thunder'
-
-function categorize(code: number | null): Cat {
-  if (code === null) return 'cloud'
-  if (code === 0) return 'clear'
-  if (code === 1 || code === 2) return 'partly'
-  if (code === 3) return 'cloud'
-  if (code === 45 || code === 48) return 'fog'
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain'
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow'
-  if (code >= 95) return 'thunder'
-  return 'cloud'
-}
+import { nightCategory, nightColor } from '../lib/weatherCode'
 
 export default function WeatherIcon({
   code,
@@ -37,36 +24,38 @@ export default function WeatherIcon({
   strokeWidth?: number
   className?: string
 }) {
-  const cat = categorize(code)
+  const cat = nightCategory(code)
+  const color = nightColor(code)
+  // 色は span に載せる（SVG も雨の線も currentColor で色が付く）
   const common = { size, strokeWidth, 'aria-hidden': true as const }
 
   if (cat === 'clear')
     return (
-      <span className={`wxi ${className}`}>
+      <span className={`wxi ${className}`} style={{ color }}>
         <Moon {...common} />
       </span>
     )
   if (cat === 'partly')
     return (
-      <span className={`wxi wxi-float ${className}`}>
+      <span className={`wxi wxi-float ${className}`} style={{ color }}>
         <CloudMoon {...common} />
       </span>
     )
   if (cat === 'fog')
     return (
-      <span className={`wxi ${className}`}>
+      <span className={`wxi ${className}`} style={{ color }}>
         <CloudFog {...common} />
       </span>
     )
   if (cat === 'snow')
     return (
-      <span className={`wxi wxi-float ${className}`}>
+      <span className={`wxi wxi-float ${className}`} style={{ color }}>
         <CloudSnow {...common} />
       </span>
     )
   if (cat === 'thunder')
     return (
-      <span className={`wxi wxi-flash ${className}`}>
+      <span className={`wxi wxi-flash ${className}`} style={{ color }}>
         <CloudLightning {...common} />
       </span>
     )
@@ -74,7 +63,7 @@ export default function WeatherIcon({
     return (
       <span
         className={`wxi wxi-rain ${className}`}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, color }}
       >
         <Cloud {...common} />
         <span className="wxi-drops" aria-hidden="true">
@@ -86,7 +75,7 @@ export default function WeatherIcon({
     )
   // cloud
   return (
-    <span className={`wxi wxi-float ${className}`}>
+    <span className={`wxi wxi-float ${className}`} style={{ color }}>
       <Cloud {...common} />
     </span>
   )

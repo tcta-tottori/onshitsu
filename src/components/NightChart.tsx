@@ -13,7 +13,7 @@ import {
   YAxis,
   type TooltipProps,
 } from 'recharts'
-import { weatherFromCode } from '../lib/weatherCode'
+import { nightAxisIcon, nightColor } from '../lib/weatherCode'
 import type { NightPoint, NightSeries } from '../lib/derive'
 
 // CSS変数を直接 recharts に渡せないので、描画色は定数化（アイコンの配色に合わせる）
@@ -34,14 +34,14 @@ function WxTick(props: {
   if (!p) return null
   // 横軸は2時間単位で表示（タップ時のツールチップは全時刻＝1時間単位）
   if (p.idx % 2 !== 0) return null
-  const { Icon } = weatherFromCode(p.weatherCode)
+  const Icon = nightAxisIcon(p.weatherCode) // 月・雲・雨ベースの夜アイコン
   const showPop = p.pop !== null && p.pop >= 10 // 10%未満は省いてノイズを減らす
 
   return (
     <foreignObject x={x - 15} y={y + 4} width={30} height={40}>
       <div className="tick-wx">
         <span className="tick-hour">{p.hour}</span>
-        <Icon size={14} strokeWidth={2} />
+        <Icon size={14} strokeWidth={2} color={nightColor(p.weatherCode)} />
         <span className="tick-pop">{showPop ? `${Math.round(p.pop as number)}%` : ''}</span>
       </div>
     </foreignObject>

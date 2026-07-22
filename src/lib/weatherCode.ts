@@ -4,9 +4,11 @@ import {
   CloudDrizzle,
   CloudFog,
   CloudLightning,
+  CloudMoon,
   CloudRain,
   CloudSnow,
   CloudSun,
+  Moon,
   Sun,
   type LucideIcon,
 } from 'lucide-react'
@@ -52,4 +54,56 @@ const UNKNOWN: WeatherInfo = { label: '—', Icon: Cloud }
 export function weatherFromCode(code: number | null | undefined): WeatherInfo {
   if (code === null || code === undefined) return UNKNOWN
   return MAP[code] ?? UNKNOWN
+}
+
+// --- 夜向けの分類・色・アイコン（アプリ全体で共通） ---
+
+export type NightCat = 'clear' | 'partly' | 'cloud' | 'fog' | 'rain' | 'snow' | 'thunder'
+
+/** weather_code を夜向けカテゴリに分類する。 */
+export function nightCategory(code: number | null | undefined): NightCat {
+  if (code === null || code === undefined) return 'cloud'
+  if (code === 0) return 'clear'
+  if (code === 1 || code === 2) return 'partly'
+  if (code === 3) return 'cloud'
+  if (code === 45 || code === 48) return 'fog'
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain'
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow'
+  if (code >= 95) return 'thunder'
+  return 'cloud'
+}
+
+/** 天気アイコンの色：月＝黄色 / 雲＝白 / 雨＝水色。 */
+export const NIGHT_ICON_COLOR = {
+  moon: '#ffd24a', // 月：黄色
+  cloud: '#f4f7ff', // 雲：白
+  rain: '#7fd3ef', // 雨：水色
+} as const
+
+/** weather_code に対応する天気アイコンの色を返す。 */
+export function nightColor(code: number | null | undefined): string {
+  const cat = nightCategory(code)
+  if (cat === 'clear') return NIGHT_ICON_COLOR.moon
+  if (cat === 'rain' || cat === 'thunder') return NIGHT_ICON_COLOR.rain
+  return NIGHT_ICON_COLOR.cloud // partly / cloud / fog / snow
+}
+
+/** グラフ横軸などに使う静止アイコン（夜向け：月・雲・雨ベース）。 */
+export function nightAxisIcon(code: number | null | undefined): LucideIcon {
+  switch (nightCategory(code)) {
+    case 'clear':
+      return Moon
+    case 'partly':
+      return CloudMoon
+    case 'fog':
+      return CloudFog
+    case 'rain':
+      return CloudRain
+    case 'snow':
+      return CloudSnow
+    case 'thunder':
+      return CloudLightning
+    default:
+      return Cloud
+  }
 }
