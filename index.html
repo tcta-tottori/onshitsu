@@ -24,12 +24,15 @@
     </script>
     <style>
       /* 起動ローダー：気象データの読込が終わるまで表示し続ける（React が __bootFinish を呼ぶ）。
-         シンプルに、上下に揺れる三日月ときらめく星のみ。 */
+         温度計アイコンの中身（オレンジのゲージ）が上下するアニメーション。 */
       #boot {
         --boot-bg1: #141f36;
         --boot-bg2: #0a1120;
-        --boot-moon: #f4f7ff;
-        --boot-moon-glow: rgba(190, 208, 255, 0.4);
+        --boot-merc: #f6a83e;
+        --boot-merc-glow: rgba(246, 168, 62, 0.55);
+        --boot-glass: rgba(126, 146, 196, 0.16);
+        --boot-outline: #e8eefc;
+        --boot-scale: #cdd8f4;
         --boot-text: #aeb9d6;
         position: fixed;
         inset: 0;
@@ -49,80 +52,54 @@
         pointer-events: none;
       }
 
-      /* 三日月と星をまとめる舞台 */
+      /* 温度計を置く舞台 */
       .boot-stage {
         position: relative;
-        width: 180px;
-        height: 150px;
+        width: 150px;
+        height: 170px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
 
-      /* 昇る三日月＋光輪＋きらめき。ゆっくり上下に揺れる。 */
-      .moon {
-        position: relative;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: var(--boot-moon);
-        box-shadow: 0 0 30px 7px var(--boot-moon-glow);
-        animation: moonrise 2.6s ease-in-out infinite;
+      .thermo {
+        width: 120px;
+        height: 170px;
+        display: block;
       }
-      .moon::after {
-        content: '';
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        background: linear-gradient(180deg, var(--boot-bg1), var(--boot-bg2));
+      /* 空のガラス管（中身が無い部分） */
+      .thermo-glass {
+        fill: var(--boot-glass);
       }
-      .moon::before {
-        content: '';
-        position: absolute;
-        top: -13px;
-        right: -20px;
-        width: 18px;
-        height: 18px;
-        background: var(--boot-moon);
-        clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-        box-shadow: 0 0 12px 2px var(--boot-moon-glow);
-        animation: sparkle 1.8s ease-in-out infinite;
-        z-index: 2;
+      /* オレンジの水銀（バルブ＋ゲージ）。ゲージが上下する。 */
+      .thermo-fill {
+        filter: drop-shadow(0 0 6px var(--boot-merc-glow));
       }
-      @keyframes moonrise {
-        0%, 100% { transform: translateY(6px); }
-        50% { transform: translateY(-6px); }
+      .thermo-bulb {
+        fill: var(--boot-merc);
       }
-
-      /* きらめく星（4点星）。舞台いっぱいに散らす。 */
-      .stars {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
+      .thermo-merc {
+        fill: var(--boot-merc);
+        transform-box: fill-box;
+        transform-origin: 50% 100%;
+        animation: gauge 2.3s ease-in-out infinite;
       }
-      .stars i {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background: #dbe4ff;
-        /* 4点星の形 */
-        clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-        opacity: 0.5;
-        filter: drop-shadow(0 0 4px rgba(200, 214, 255, 0.6));
-        animation: sparkle 1.8s ease-in-out infinite;
+      @keyframes gauge {
+        0%, 100% { transform: scaleY(0.24); }
+        50% { transform: scaleY(1); }
       }
-      .stars i:nth-child(1) { left: 8%;  top: 22%; width: 12px; height: 12px; animation-delay: 0s; }
-      .stars i:nth-child(2) { left: 86%; top: 16%; width: 9px;  height: 9px;  animation-delay: 0.5s; }
-      .stars i:nth-child(3) { left: 92%; top: 58%; width: 11px; height: 11px; animation-delay: 1s; }
-      .stars i:nth-child(4) { left: 4%;  top: 62%; width: 8px;  height: 8px;  animation-delay: 1.4s; }
-      .stars i:nth-child(5) { left: 72%; top: 74%; width: 10px; height: 10px; animation-delay: 0.8s; }
-      .stars i:nth-child(6) { left: 22%; top: 80%; width: 7px;  height: 7px;  animation-delay: 0.3s; }
-      @keyframes sparkle {
-        0%, 100% { opacity: 0.15; transform: scale(0.6) rotate(0deg); }
-        50% { opacity: 1; transform: scale(1.15) rotate(45deg); }
+      /* 管とバルブの輪郭 */
+      .thermo-outline {
+        fill: none;
+        stroke: var(--boot-outline);
+        stroke-width: 5;
+      }
+      /* 右側の目盛り */
+      .thermo-scale line {
+        stroke: var(--boot-scale);
+        stroke-width: 5;
+        stroke-linecap: round;
+        opacity: 0.85;
       }
 
       .boot-pct {
@@ -134,7 +111,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .moon, .stars i, .moon::before { animation: none; }
+        .thermo-merc { animation: none; transform: scaleY(0.68); }
       }
     </style>
   </head>
@@ -142,10 +119,36 @@
     <div id="root"></div>
     <div id="boot">
       <div class="boot-stage">
-        <div class="stars" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i><i></i>
-        </div>
-        <div class="moon" aria-hidden="true"></div>
+        <svg class="thermo" viewBox="0 0 120 170" aria-hidden="true">
+          <defs>
+            <clipPath id="thermoClip">
+              <path d="M48,26 a12,12 0 0 1 24,0 L72,104 a26,26 0 1 1 -24,0 Z" />
+            </clipPath>
+          </defs>
+          <!-- 空のガラス -->
+          <path
+            class="thermo-glass"
+            d="M48,26 a12,12 0 0 1 24,0 L72,104 a26,26 0 1 1 -24,0 Z"
+          />
+          <!-- オレンジの中身（上下するゲージ） -->
+          <g class="thermo-fill" clip-path="url(#thermoClip)">
+            <circle class="thermo-bulb" cx="60" cy="127" r="27" />
+            <rect class="thermo-merc" x="48" y="24" width="24" height="103" />
+          </g>
+          <!-- 輪郭 -->
+          <path
+            class="thermo-outline"
+            d="M48,26 a12,12 0 0 1 24,0 L72,104 a26,26 0 1 1 -24,0 Z"
+          />
+          <!-- 目盛り -->
+          <g class="thermo-scale">
+            <line x1="80" y1="34" x2="101" y2="34" />
+            <line x1="80" y1="52" x2="101" y2="52" />
+            <line x1="80" y1="70" x2="101" y2="70" />
+            <line x1="80" y1="88" x2="96" y2="88" />
+            <line x1="80" y1="106" x2="96" y2="106" />
+          </g>
+        </svg>
       </div>
       <div class="boot-pct" id="boot-pct">Loading... 0%</div>
     </div>
