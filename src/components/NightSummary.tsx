@@ -107,7 +107,7 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
           unit="°"
           head={
             <>
-              <Thermometer size={15} strokeWidth={2.2} />
+              <Thermometer size={21} strokeWidth={2.2} />
               気温
             </>
           }
@@ -121,7 +121,7 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
           unit="%"
           head={
             <>
-              <Droplets size={15} strokeWidth={2.2} />
+              <Droplets size={21} strokeWidth={2.2} />
               湿度
             </>
           }

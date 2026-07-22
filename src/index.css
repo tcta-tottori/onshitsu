@@ -457,12 +457,12 @@ a {
 .metric-head {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 14px;
   font-weight: 800;
   margin-bottom: 12px;
   color: inherit;
-  opacity: 0.92;
+  opacity: 0.94;
 }
 /* high | 区切り線 | low（同サイズ） */
 .metric-pair {

@@ -2,6 +2,7 @@
 // アプリアイコンの世界観に合わせ、発光する曲線＋下方向グラデーションの塗りで
 // 洗練された見た目に。X軸のカスタム tick に各時刻の天気アイコンと降水確率を埋め込む。
 import { useState } from 'react'
+import { Droplets, Thermometer } from 'lucide-react'
 import {
   Area,
   CartesianGrid,
@@ -97,10 +98,10 @@ export default function NightChart({
       <div className="chart-top">
         <div className="chart-legend">
           <span className="lg temp">
-            <span className="dot temp" />気温 ℃
+            <Thermometer size={19} strokeWidth={2.2} />気温 ℃
           </span>
           <span className="lg humid">
-            <span className="dot humid" />湿度 %
+            <Droplets size={19} strokeWidth={2.2} />湿度 %
           </span>
         </div>
         {acPoints && (
