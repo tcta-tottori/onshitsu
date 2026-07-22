@@ -717,6 +717,9 @@ a {
   color: var(--text);
   margin-left: auto;
 }
+.ac-reco-item .ac-v.mode {
+  font-size: 21px;
+}
 .ac-reco-item .ac-v small {
   font-size: 0.46em;
   font-weight: 700;
@@ -728,6 +731,31 @@ a {
   align-self: stretch;
   width: 1px;
   background: var(--border);
+}
+/* 冷房/除湿それぞれの電気代の目安（小さく） */
+.ac-cost {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-bottom: 11px;
+}
+.ac-cost-label {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.ac-cost-item {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ac-cost-item.on {
+  color: var(--text);
+  font-weight: 800;
+}
+.ac-cost-sep2 {
+  opacity: 0.45;
 }
 .ac-detail {
   font-size: 13px;
