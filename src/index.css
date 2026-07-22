@@ -540,6 +540,123 @@ a {
 }
 
 /* =========================================================================
+   エアコンのおすすめカード
+   ========================================================================= */
+.aircon {
+  margin-top: 4px;
+  border-color: color-mix(in srgb, var(--humid) 26%, var(--border));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--humid) 9%, var(--surface)), var(--surface));
+}
+.ac-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ac-ic {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  align-items: center;
+  justify-content: center;
+  background: var(--humid-soft);
+  color: var(--humid-light);
+  flex: 0 0 auto;
+}
+.ac-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.ac-chip {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--temp) 20%, transparent);
+  color: var(--temp-light);
+  flex: 0 0 auto;
+}
+.ac-chip.ok {
+  background: color-mix(in srgb, var(--humid) 20%, transparent);
+  color: var(--humid-light);
+}
+.ac-headline {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  margin-bottom: 12px;
+}
+.ac-ok .ac-headline {
+  color: var(--humid-light);
+}
+.ac-reco {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.ac-reco-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--humid-light);
+  flex: 1 1 0;
+  min-width: 0;
+}
+.ac-reco-item > svg {
+  align-self: center;
+  flex: 0 0 auto;
+}
+.ac-reco-item .ac-k {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.ac-reco-item .ac-v {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  margin-left: auto;
+}
+.ac-reco-item .ac-v small {
+  font-size: 0.5em;
+  font-weight: 700;
+  margin-left: 1px;
+  color: var(--text-dim);
+}
+.ac-reco-sep {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  background: var(--border);
+}
+.ac-detail {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+.ac-ok .ac-detail {
+  color: var(--text-dim);
+}
+.ac-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* =========================================================================
    ② 夜間グラフ
    ========================================================================= */
 .chart-card {

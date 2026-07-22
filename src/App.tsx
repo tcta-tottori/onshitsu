@@ -3,10 +3,12 @@ import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNight, deriveNightCards, deriveNightForecast } from './lib/derive'
+import { adviseAircon } from './lib/aircon'
 import NightSummary from './components/NightSummary'
 import NightChart from './components/NightChart'
 import ForecastTable from './components/ForecastTable'
 import LocationPicker from './components/LocationPicker'
+import AirconCard from './components/AirconCard'
 import Reveal from './components/Reveal'
 
 type LoadState =
@@ -46,7 +48,8 @@ export default function App() {
     const night = deriveNight(state.data, now, state.data.hourly.precipitation_probability)
     const forecast = deriveNightForecast(state.data, now, 6)
     const cards = deriveNightCards(state.data, now, 3)
-    return { night, forecast, cards }
+    const aircon = adviseAircon(night.points)
+    return { night, forecast, cards, aircon }
   }, [state])
 
   // 初回の気象データ読込が終わったら起動ローダー（#boot）を隠す
@@ -99,6 +102,12 @@ export default function App() {
             <Reveal>
               <NightSummary cards={derived.cards} />
             </Reveal>
+
+            {derived.aircon.available && (
+              <Reveal>
+                <AirconCard advice={derived.aircon} />
+              </Reveal>
+            )}
 
             <Reveal>
               <div className="sec-head">
