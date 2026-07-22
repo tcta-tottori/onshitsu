@@ -6,26 +6,26 @@
    ========================================================================= */
 
 :root {
-  /* Dark（主役：夜のアプリ） */
-  --bg-1: #12121f;
-  --bg-2: #0a0a12;
-  --surface: #1b1b30;
-  --surface-2: #26264a;
-  --text: #eef1fb;
-  --text-dim: #9aa3c4;
-  --border: #2c2c50;
+  /* Dark（主役：夜のアプリ / アイコンの濃紺に合わせる） */
+  --bg-1: #16233d;
+  --bg-2: #0a1120;
+  --surface: #17233d;
+  --surface-2: #223250;
+  --text: #eaf0fb;
+  --text-dim: #93a1bd;
+  --border: #2a3a5c;
 
-  /* 気温 = 暖色（琥珀系） */
-  --temp: #f59e0b;
-  --temp-light: #fcd34d;
-  --temp-soft: rgba(245, 158, 11, 0.14);
+  /* 気温 = 暖色（琥珀系・アイコンの金橙に合わせる） */
+  --temp: #f6a83e;
+  --temp-light: #f8c065;
+  --temp-soft: rgba(246, 168, 62, 0.14);
 
   /* 湿度 = 寒色（シアン系） */
   --humid: #22d3ee;
-  --humid-light: #67e8f9;
+  --humid-light: #7fd3ef;
   --humid-soft: rgba(34, 211, 238, 0.14);
 
-  --accent: #a5b4fc; /* インディゴ寄りの補助色 */
+  --accent: #9db4e8; /* 夜空の補助色 */
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
@@ -129,12 +129,9 @@ a {
 .appbar .brand-mark {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: 11px;
   flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(150deg, #2a2a55, #14142a);
-  color: var(--temp-light);
+  object-fit: cover;
   box-shadow: var(--shadow-sm);
 }
 .appbar .brand-name {
@@ -326,7 +323,7 @@ a {
 .hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #23234a 0%, #16162e 55%, #101022 100%);
+  background: linear-gradient(160deg, #22314f 0%, #16233d 52%, #0b1224 100%);
   border-radius: 26px;
   padding: 22px 22px 24px;
   color: #fff;

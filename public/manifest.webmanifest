@@ -1,0 +1,16 @@
+{
+  "name": "ONSHITSU — 今夜の気温×湿度",
+  "short_name": "ONSHITSU",
+  "description": "今夜（17時〜翌6時）の気温と湿度に特化した天気予報。",
+  "start_url": "/onshitsu/",
+  "scope": "/onshitsu/",
+  "display": "standalone",
+  "background_color": "#0a1120",
+  "theme_color": "#0a1120",
+  "icons": [
+    { "src": "/onshitsu/pwa-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/onshitsu/pwa-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/onshitsu/pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/onshitsu/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

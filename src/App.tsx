@@ -98,9 +98,13 @@ export default function App() {
     <div className="app">
       <header className="appbar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <Moon size={20} strokeWidth={2.2} fill="currentColor" />
-          </span>
+          <img
+            className="brand-mark"
+            src={`${import.meta.env.BASE_URL}icon.svg`}
+            alt=""
+            width={38}
+            height={38}
+          />
           <span className="brand-name">ONSHITSU</span>
         </div>
         <span className="spacer" />

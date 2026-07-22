@@ -9,6 +9,11 @@
     <meta name="theme-color" content="#0a0a12" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="/onshitsu/icon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/onshitsu/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/onshitsu/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/onshitsu/apple-touch-icon.png" />
+    <link rel="manifest" href="/onshitsu/manifest.webmanifest" />
     <meta
       name="description"
       content="ONSHITSU（音質ではなく、夜の湿度）— 今夜の気温と湿度に特化した天気予報。鳥取の夜の冷え込みと湿り具合を一目で。"
@@ -33,10 +38,10 @@
       /* JSが読み込まれる前から表示する起動ローダー（夜空に昇る月のアニメ）。
          #root の外に置き、アプリ準備完了までこの1枚だけを表示する。 */
       #boot {
-        --boot-bg1: #12121f;
-        --boot-bg2: #0a0a12;
-        --boot-moon: #fcd34d;
-        --boot-moon-glow: rgba(252, 211, 77, 0.35);
+        --boot-bg1: #141f36;
+        --boot-bg2: #0a1120;
+        --boot-moon: #f4f7ff;
+        --boot-moon-glow: rgba(190, 208, 255, 0.4);
         --boot-text: #93a1bd;
         position: fixed;
         inset: 0;
@@ -54,8 +59,8 @@
       :root[data-theme='light'] #boot {
         --boot-bg1: #eef1fb;
         --boot-bg2: #dfe4f5;
-        --boot-moon: #e0a11c;
-        --boot-moon-glow: rgba(224, 161, 28, 0.25);
+        --boot-moon: #4a5a8a;
+        --boot-moon-glow: rgba(74, 90, 138, 0.2);
         --boot-text: #6b7490;
       }
       #boot.boot-hide {
@@ -85,6 +90,20 @@
       }
       :root[data-theme='light'] .moon::after {
         background: linear-gradient(180deg, #eef1fb, #dfe4f5);
+      }
+      /* きらめき（4点星）：三日月の右上 */
+      .moon::before {
+        content: '';
+        position: absolute;
+        top: -14px;
+        right: -22px;
+        width: 20px;
+        height: 20px;
+        background: var(--boot-moon);
+        clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+        box-shadow: 0 0 12px 2px var(--boot-moon-glow);
+        animation: twinkle 1.8s ease-in-out infinite;
+        z-index: 2;
       }
       @keyframes moonrise {
         0%,
