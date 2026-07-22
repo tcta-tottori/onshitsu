@@ -50,9 +50,10 @@ function Pair({
         </span>
         <DiffTag v={hiDiff} unit={unit} />
       </div>
+      <span className="metric-sep" aria-hidden="true" />
       <div className="mcol lo">
         <span className="mk">low</span>
-        <span className="mv">
+        <span className="mv lo">
           {round(lo)}
           <small>{unit}</small>
         </span>
@@ -78,7 +79,7 @@ function HeroCard({ card, rel }: { card: NightCard; rel: number }) {
           </div>
         </div>
         <div className="hero-wx" title={label}>
-          <Icon size={64} strokeWidth={1.5} aria-hidden="true" />
+          <Icon size={60} strokeWidth={1.5} aria-hidden="true" />
           <span className="wx-label">{label}</span>
         </div>
       </div>

@@ -362,12 +362,13 @@ a {
 .hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #22314f 0%, #16233d 52%, #0b1224 100%);
+  background: linear-gradient(160deg, #26385580 0%, #1c2c48 55%, #1a2942 100%),
+    var(--surface);
   border-radius: 26px;
   padding: 20px 20px 22px;
   color: #fff;
   box-shadow: var(--shadow-hero);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 /* ヒーロー背景：夜の帯（上=夕暮れ、下=夜明けを想起させる淡い光） */
 .hero::before {
@@ -420,25 +421,24 @@ a {
   font-weight: 700;
   color: var(--text-dim);
 }
-/* 右上：大きい天気アイコン＋重ねた天気ラベル（右揃え） */
+/* 右上：大きい天気アイコン＋その下に天気ラベル（重ならない） */
 .hero-wx {
-  position: relative;
   flex: 0 0 auto;
   color: #e6edff;
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 6px;
+}
+.hero-wx > svg {
   filter: drop-shadow(0 3px 12px rgba(180, 200, 255, 0.28));
 }
 .hero-wx .wx-label {
-  position: absolute;
-  right: 0;
-  bottom: -4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.02em;
-  color: #fff;
+  color: #e6edff;
   white-space: nowrap;
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.7), 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 /* 気温・湿度の high/low を2枠で対比 */
@@ -468,16 +468,23 @@ a {
 .metric.humid .metric-head {
   color: var(--humid-light);
 }
-/* high(左・大) / low(右・小) */
+/* high / low を同サイズ＋間に区切り線 */
 .metric-pair {
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
+  align-items: stretch;
+  gap: 12px;
 }
 .mcol {
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+.metric-sep {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 2px 0;
 }
 .mk {
   font-size: 9.5px;
@@ -488,6 +495,7 @@ a {
   margin-bottom: 3px;
 }
 .mv {
+  font-size: 26px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -495,17 +503,12 @@ a {
   white-space: nowrap;
 }
 .mv small {
-  font-size: 0.42em;
+  font-size: 0.44em;
   font-weight: 700;
   margin-left: 1px;
 }
-.mcol.hi .mv {
-  font-size: 30px;
-}
-.mcol.lo .mv {
-  font-size: 18px;
+.mv.lo {
   color: var(--text-dim);
-  padding-bottom: 2px;
 }
 .metric.temp .mcol.hi .mv {
   color: var(--temp-light);
@@ -672,24 +675,30 @@ a {
 }
 .fg {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   font-variant-numeric: tabular-nums;
 }
-.fg-hi {
-  font-size: 22px;
+.fg-hi,
+.fg-lo {
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
-.fg-hi small {
+.fg-hi small,
+.fg-lo small {
   font-size: 0.5em;
   font-weight: 700;
   margin-left: 1px;
 }
 .fg-lo {
-  font-size: 13px;
-  font-weight: 700;
   color: var(--text-dim);
+}
+.fg-sep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 16px;
+  background: var(--border);
 }
 .fg.temp .fg-hi {
   color: var(--temp-light);

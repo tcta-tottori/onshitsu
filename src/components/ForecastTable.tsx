@@ -27,9 +27,10 @@ function Metric({
         {round(hi)}
         <small>{unit}</small>
       </span>
+      <span className="fg-sep" aria-hidden="true" />
       <span className="fg-lo">
         {round(lo)}
-        {unit}
+        <small>{unit}</small>
       </span>
     </div>
   )
