@@ -661,44 +661,10 @@ a {
 .chart-card {
   padding: 16px 8px 12px;
 }
-.chart-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 12px 6px;
-  flex-wrap: wrap;
-}
-/* 予報／エアコン使用時 の切替 */
-.chart-seg {
-  display: inline-flex;
-  background: var(--surface-2);
-  border-radius: 999px;
-  padding: 3px;
-  gap: 2px;
-}
-.chart-seg button {
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--text-dim);
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.chart-seg button.on {
-  background: var(--humid);
-  color: #06222b;
-}
-.chart-acnote {
-  padding: 0 12px 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--humid-light);
-}
 .chart-legend {
   display: flex;
   gap: 16px;
+  padding: 0 12px 6px;
   font-size: 12px;
   font-weight: 700;
 }
@@ -780,20 +746,20 @@ a {
 }
 .frow {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 .frow-date {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
-  min-width: 34px;
+  min-width: 30px;
 }
 .frow-day {
   font-size: 19px;
@@ -811,52 +777,77 @@ a {
 .frow-dow.sun {
   color: #fb7185;
 }
-/* 気温・湿度を横並び（最高大・最低小） */
-.frow-metrics2 {
-  display: flex;
-  align-items: baseline;
-  gap: 20px;
-  min-width: 0;
-}
-.fg {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-variant-numeric: tabular-nums;
-}
-.fg-hi,
-.fg-lo {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-.fg-hi small,
-.fg-lo small {
-  font-size: 0.5em;
-  font-weight: 700;
-  margin-left: 1px;
-}
-.fg-lo {
-  color: var(--text-dim);
-}
-.fg-sep {
-  flex: 0 0 auto;
-  width: 1px;
-  height: 16px;
-  background: var(--border);
-}
-.fg.temp .fg-hi {
-  color: var(--temp-light);
-}
-.fg.humid .fg-hi {
-  color: var(--humid-light);
-}
 .frow-wx {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #e6edff;
   flex: 0 0 auto;
+}
+/* 気温・湿度を2行（アイコン付き）で */
+.frow-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.fline {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+.fline .fl-ic {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.fline.temp .fl-ic {
+  color: var(--temp-light);
+}
+.fline.humid .fl-ic {
+  color: var(--humid-light);
+}
+.fline .fl-hi {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.fline.temp .fl-hi {
+  color: var(--temp-light);
+}
+.fline.humid .fl-hi {
+  color: var(--humid-light);
+}
+.fline .fl-lo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.fline .fl-hi small,
+.fline .fl-lo small {
+  font-size: 0.55em;
+  font-weight: 700;
+  margin-left: 1px;
+}
+.fline .fl-sep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 13px;
+  background: var(--border);
+}
+/* 右側のミニ推移グラフ */
+.frow-mini {
+  flex: 0 0 auto;
+  width: 66px;
+  height: 34px;
+  opacity: 0.95;
+}
+.mini-trend {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
 }
 
 /* =========================================================================

@@ -62,6 +62,24 @@ export interface NightForecastRow {
   tempLow: number | null
   humHigh: number | null
   humLow: number | null
+  /** その夜（19〜翌6時）の毎時系列（ミニ推移グラフ用） */
+  temps: Array<number | null>
+  hums: Array<number | null>
+}
+
+/** [startMs, endMs] の hourly 気温・湿度を時系列で返す（ミニグラフ用） */
+function windowSeries(data: WeatherData, startMs: number, endMs: number) {
+  const temps: Array<number | null> = []
+  const hums: Array<number | null> = []
+  const { time, temperature_2m, relative_humidity_2m } = data.hourly
+  for (let i = 0; i < time.length; i++) {
+    const ms = parseHourly(time[i]).getTime()
+    if (ms >= startMs && ms <= endMs) {
+      temps.push(temperature_2m[i] ?? null)
+      hums.push(relative_humidity_2m[i] ?? null)
+    }
+  }
+  return { temps, hums }
 }
 
 /**
@@ -81,6 +99,7 @@ export function deriveNightForecast(
     const endMs = base.end.getTime() + k * DAY_MS
     const cur = windowMinMax(data, startMs, endMs)
     if (!cur.temp && !cur.hum) continue // 範囲外＝データ無し
+    const ser = windowSeries(data, startMs, endMs)
     rows.push({
       dateObj: new Date(startMs),
       weatherCode: windowWeatherCode(data, startMs, endMs),
@@ -88,6 +107,8 @@ export function deriveNightForecast(
       tempLow: cur.temp?.min ?? null,
       humHigh: cur.hum?.max ?? null,
       humLow: cur.hum?.min ?? null,
+      temps: ser.temps,
+      hums: ser.hums,
     })
   }
   return rows

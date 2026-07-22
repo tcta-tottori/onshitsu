@@ -1,7 +1,6 @@
 // ② 夜間グラフ：気温(左軸・暖色) × 湿度(右軸・寒色) の二軸。
 // アプリアイコンの世界観に合わせ、発光する曲線＋下方向グラデーションの塗りで
 // 洗練された見た目に。X軸のカスタム tick に各時刻の天気アイコンと降水確率を埋め込む。
-import { useState } from 'react'
 import { Droplets, Thermometer } from 'lucide-react'
 import {
   Area,
@@ -69,23 +68,13 @@ function fourTicks(lo: number, hi: number): number[] {
   return [0, 1, 2, 3].map((i) => lo + ((hi - lo) * i) / 3)
 }
 
-export default function NightChart({
-  series,
-  acPoints,
-  acNote,
-}: {
-  series: NightSeries
-  acPoints?: NightPoint[]
-  acNote?: string
-}) {
+export default function NightChart({ series }: { series: NightSeries }) {
   const { points } = series
-  const [acView, setAcView] = useState(false)
-  const data = acView && acPoints ? acPoints : points
+  const data = points
 
-  // 軸レンジは予報・エアコン使用時の両方を含めて固定（切替えても位置が揃う）
-  const forDomain = acPoints ? [...points, ...acPoints] : points
-  const temps = forDomain.map((p) => p.temp).filter((v): v is number => v !== null)
-  const hums = forDomain.map((p) => p.humidity).filter((v): v is number => v !== null)
+  // 軸レンジ（気温・湿度とも4目盛で高さ位置を揃える）
+  const temps = points.map((p) => p.temp).filter((v): v is number => v !== null)
+  const hums = points.map((p) => p.humidity).filter((v): v is number => v !== null)
   const tLo = temps.length ? Math.floor(Math.min(...temps) - 1) : 0
   const tHi = temps.length ? Math.ceil(Math.max(...temps) + 1) : 10
   const hLo = hums.length ? Math.max(0, Math.floor((Math.min(...hums) - 5) / 5) * 5) : 0
@@ -95,35 +84,14 @@ export default function NightChart({
 
   return (
     <section className="card chart-card chart-rise" aria-label="今夜の気温・湿度の推移">
-      <div className="chart-top">
-        <div className="chart-legend">
-          <span className="lg temp">
-            <Thermometer size={19} strokeWidth={2.2} />気温 ℃
-          </span>
-          <span className="lg humid">
-            <Droplets size={19} strokeWidth={2.2} />湿度 %
-          </span>
-        </div>
-        {acPoints && (
-          <div className="chart-seg" role="group" aria-label="表示切替">
-            <button
-              className={acView ? '' : 'on'}
-              onClick={() => setAcView(false)}
-              aria-pressed={!acView}
-            >
-              予報
-            </button>
-            <button
-              className={acView ? 'on' : ''}
-              onClick={() => setAcView(true)}
-              aria-pressed={acView}
-            >
-              エアコン使用時
-            </button>
-          </div>
-        )}
+      <div className="chart-legend">
+        <span className="lg temp">
+          <Thermometer size={19} strokeWidth={2.2} />気温 ℃
+        </span>
+        <span className="lg humid">
+          <Droplets size={19} strokeWidth={2.2} />湿度 %
+        </span>
       </div>
-      {acView && acNote && <div className="chart-acnote">{acNote}</div>}
       <ResponsiveContainer width="100%" height={236}>
         <ComposedChart data={data} margin={{ top: 10, right: 6, bottom: 26, left: 2 }}>
           <defs>

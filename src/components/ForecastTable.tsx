@@ -1,14 +1,17 @@
-// ③ 明日以降テーブル：各行は「夜（19〜翌6時）」の気温・湿度（同サイズ＋区切り線）と
-// 天気アイコン（右）。スクロールで浮かび上がり（Reveal）、数字はカウントアップ。
+// ③ 明日以降テーブル：各行は 日付＋天気アイコン ／ 気温・湿度を2行（アイコン付き）／
+// 右側にその夜のミニ推移グラフ。数値はカウントアップ、スクロールで浮かび上がる。
+import { Droplets, Thermometer } from 'lucide-react'
 import { weatherFromCode } from '../lib/weatherCode'
 import type { NightForecastRow } from '../lib/derive'
 import CountUp from './CountUp'
 import WeatherIcon from './WeatherIcon'
+import MiniTrend from './MiniTrend'
 import Reveal from './Reveal'
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
 
-function Metric({
+/** アイコン付き1行（気温 or 湿度）：high | 区切り線 | low */
+function Line({
   kind,
   hi,
   lo,
@@ -20,13 +23,20 @@ function Metric({
   unit: string
 }) {
   return (
-    <div className={`fg ${kind}`}>
-      <span className="fg-hi">
+    <div className={`fline ${kind}`}>
+      <span className="fl-ic">
+        {kind === 'temp' ? (
+          <Thermometer size={15} strokeWidth={2.2} />
+        ) : (
+          <Droplets size={15} strokeWidth={2.2} />
+        )}
+      </span>
+      <span className="fl-hi">
         <CountUp value={hi} />
         <small>{unit}</small>
       </span>
-      <span className="fg-sep" aria-hidden="true" />
-      <span className="fg-lo">
+      <span className="fl-sep" aria-hidden="true" />
+      <span className="fl-lo">
         <CountUp value={lo} />
         <small>{unit}</small>
       </span>
@@ -60,13 +70,17 @@ export default function ForecastTable({ rows }: { rows: NightForecastRow[] }) {
                 </span>
               </div>
 
-              <div className="frow-metrics2">
-                <Metric kind="temp" hi={r.tempHigh} lo={r.tempLow} unit="°" />
-                <Metric kind="humid" hi={r.humHigh} lo={r.humLow} unit="%" />
+              <div className="frow-wx" title={label}>
+                <WeatherIcon code={r.weatherCode} size={28} strokeWidth={1.7} />
               </div>
 
-              <div className="frow-wx" title={label}>
-                <WeatherIcon code={r.weatherCode} size={30} strokeWidth={1.7} />
+              <div className="frow-lines">
+                <Line kind="temp" hi={r.tempHigh} lo={r.tempLow} unit="°" />
+                <Line kind="humid" hi={r.humHigh} lo={r.humLow} unit="%" />
+              </div>
+
+              <div className="frow-mini" aria-hidden="true">
+                <MiniTrend temps={r.temps} hums={r.hums} />
               </div>
             </div>
           </Reveal>
