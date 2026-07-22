@@ -153,10 +153,13 @@
       <div class="boot-pct" id="boot-pct">Loading... 0%</div>
     </div>
     <script>
-      /* 読込%の演出：完了までは 92% までゆっくり近づき、__bootFinish で 100%→フェード。 */
+      /* 読込%の演出：完了までは 92% までゆっくり近づき、__bootFinish で 100%→フェード。
+         データが早く揃っても、読込画面は最低2秒間は表示する。 */
       (function () {
         var pct = 0,
           finished = false
+        var MIN_MS = 2000
+        var startedAt = Date.now()
         var el = document.getElementById('boot-pct')
         function render() {
           if (el) el.textContent = 'Loading... ' + Math.round(pct) + '%'
@@ -170,6 +173,12 @@
         }, 90)
         window.__bootFinish = function () {
           if (finished) return
+          // 最低表示時間（2秒）に満たなければ、残り時間だけ待ってから完了させる
+          var remain = MIN_MS - (Date.now() - startedAt)
+          if (remain > 0) {
+            setTimeout(window.__bootFinish, remain)
+            return
+          }
           finished = true
           clearInterval(iv)
           pct = 100

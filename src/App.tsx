@@ -15,6 +15,15 @@ type LoadState =
   | { status: 'ready'; data: WeatherData }
   | { status: 'error'; message: string }
 
+/** 気象データの取得時刻を "M/D HH:MM" で表す（データの更新目安） */
+function fmtStamp(d: Date): string {
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return `${m}/${day} ${hh}:${mm}`
+}
+
 export default function App() {
   const [location, setLocation] = useState<Location>(DEFAULT_LOCATION)
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -62,6 +71,9 @@ export default function App() {
 
   return (
     <div className="app">
+      {state.status === 'ready' && (
+        <div className="data-stamp">DATA:{fmtStamp(state.data.fetchedAt)}</div>
+      )}
       <header className="appbar">
         <div className="brand">
           <img
