@@ -2,7 +2,12 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # main を正とするが、リポジトリのデフォルトブランチが作業ブランチのままだと
+    # GitHub Pages 環境が main からのデプロイを拒否するため、作業ブランチでもデプロイ可能にする。
+    # （デフォルトブランチを main に変更した場合は branches: [main] のみで十分）
+    branches:
+      - main
+      - claude/yotsuyu-night-weather-app-0b3puq
   workflow_dispatch:
 
 permissions:
