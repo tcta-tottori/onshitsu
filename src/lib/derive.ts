@@ -62,24 +62,11 @@ export interface NightForecastRow {
   tempLow: number | null
   humHigh: number | null
   humLow: number | null
-  /** その夜（19〜翌6時）の毎時系列（ミニ推移グラフ用） */
+  /** その夜（19〜翌6時）の毎時系列（ミニグラフ・詳細ポップアップ用） */
+  series: NightSeries
+  /** ミニグラフ用の気温・湿度配列（series 由来） */
   temps: Array<number | null>
   hums: Array<number | null>
-}
-
-/** [startMs, endMs] の hourly 気温・湿度を時系列で返す（ミニグラフ用） */
-function windowSeries(data: WeatherData, startMs: number, endMs: number) {
-  const temps: Array<number | null> = []
-  const hums: Array<number | null> = []
-  const { time, temperature_2m, relative_humidity_2m } = data.hourly
-  for (let i = 0; i < time.length; i++) {
-    const ms = parseHourly(time[i]).getTime()
-    if (ms >= startMs && ms <= endMs) {
-      temps.push(temperature_2m[i] ?? null)
-      hums.push(relative_humidity_2m[i] ?? null)
-    }
-  }
-  return { temps, hums }
 }
 
 /**
@@ -91,24 +78,25 @@ export function deriveNightForecast(
   data: WeatherData,
   now: Date = new Date(),
   count = 6,
+  hourlyPop?: Array<number | null>,
 ): NightForecastRow[] {
   const base = getNightWindow(now)
   const rows: NightForecastRow[] = []
   for (let k = 1; k <= count; k++) {
     const startMs = base.start.getTime() + k * DAY_MS
     const endMs = base.end.getTime() + k * DAY_MS
-    const cur = windowMinMax(data, startMs, endMs)
-    if (!cur.temp && !cur.hum) continue // 範囲外＝データ無し
-    const ser = windowSeries(data, startMs, endMs)
+    const series = buildNightSeries(data, startMs, endMs, hourlyPop)
+    if (!series.temp && !series.humidity) continue // 範囲外＝データ無し
     rows.push({
       dateObj: new Date(startMs),
       weatherCode: windowWeatherCode(data, startMs, endMs),
-      tempHigh: cur.temp?.max ?? null,
-      tempLow: cur.temp?.min ?? null,
-      humHigh: cur.hum?.max ?? null,
-      humLow: cur.hum?.min ?? null,
-      temps: ser.temps,
-      hums: ser.hums,
+      tempHigh: series.temp?.max ?? null,
+      tempLow: series.temp?.min ?? null,
+      humHigh: series.humidity?.max ?? null,
+      humLow: series.humidity?.min ?? null,
+      series,
+      temps: series.points.map((p) => p.temp),
+      hums: series.points.map((p) => p.humidity),
     })
   }
   return rows

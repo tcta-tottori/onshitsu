@@ -44,8 +44,9 @@ export default function App() {
   const derived = useMemo(() => {
     if (state.status !== 'ready') return null
     const now = nowRef.current
-    const forecast = deriveNightForecast(state.data, now, 6)
-    const cards = deriveNightCards(state.data, now, 3, state.data.hourly.precipitation_probability)
+    const pop = state.data.hourly.precipitation_probability
+    const forecast = deriveNightForecast(state.data, now, 6, pop)
+    const cards = deriveNightCards(state.data, now, 3, pop)
     const aircon = adviseAircon(cards[0]?.series.points ?? [])
     return { forecast, cards, aircon }
   }, [state])
