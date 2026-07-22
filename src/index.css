@@ -105,12 +105,13 @@ a {
   position: relative;
 }
 
-/* 気象データの更新目安（画面上部・左上） */
+/* 気象データの更新目安（画面上部・右上） */
 .data-stamp {
   position: absolute;
   top: calc(var(--safe-t) + 7px);
-  left: 20px;
+  right: 20px;
   z-index: 11;
+  text-align: right;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -319,7 +320,7 @@ a {
   animation: lineRise 1.2s cubic-bezier(0.16, 0.7, 0.3, 1) 0.5s forwards;
 }
 
-/* 塗り（グロー .narea）は線から少しラグを置き、線（上端）から下へ垂れ下がるように出現する。 */
+/* 塗り（グロー .narea）は線とほぼ同時に開始し、線（上端）から下へ垂れ下がるように出現する。 */
 @keyframes areaDrip {
   from {
     opacity: 0;
@@ -335,7 +336,7 @@ a {
   transform: scaleY(0.02);
   transform-box: fill-box;
   transform-origin: 50% 0%;
-  animation: areaDrip 0.95s cubic-bezier(0.2, 0.7, 0.3, 1) 0.95s forwards;
+  animation: areaDrip 1.15s cubic-bezier(0.2, 0.7, 0.3, 1) 0.55s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -495,33 +496,45 @@ a {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-/* 枠全体をカラー表示（気温=暖色 / 湿度=寒色） */
+/* 枠は半透明の薄いカラー地＋カラー文字（気温=暖色 / 湿度=寒色） */
 .metric {
   border-radius: 18px;
-  padding: 13px 12px 14px;
+  padding: 15px 13px 17px;
   min-width: 0;
+  border: 1px solid transparent;
 }
 .metric.temp {
-  background: linear-gradient(140deg, #fbc369, #f0982a);
+  background: linear-gradient(140deg, rgba(246, 168, 62, 0.18), rgba(240, 152, 42, 0.07));
+  border-color: rgba(246, 168, 62, 0.3);
+  color: #f6a83e;
 }
 .metric.humid {
-  background: linear-gradient(140deg, #a9e4f7, #67c7e9);
-}
-.metric.temp {
-  color: #402a09;
-}
-.metric.humid {
-  color: #063542;
+  background: linear-gradient(140deg, rgba(127, 211, 239, 0.18), rgba(103, 199, 233, 0.07));
+  border-color: rgba(127, 211, 239, 0.32);
+  color: #7fd3ef;
 }
 .metric-head {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 800;
-  margin-bottom: 12px;
+  gap: 9px;
+  margin-bottom: 13px;
   color: inherit;
-  opacity: 0.94;
+}
+.mh-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+.mh-jp {
+  font-size: 16.5px;
+  font-weight: 800;
+}
+.mh-en {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0.72;
+  margin-top: 2.5px;
 }
 /* high | 区切り線 | low（同サイズ） */
 .metric-pair {
@@ -540,18 +553,19 @@ a {
   flex: 0 0 auto;
   align-self: stretch;
   width: 1px;
-  background: rgba(0, 0, 0, 0.2);
+  background: currentColor;
+  opacity: 0.25;
   margin: 2px 0;
 }
 .mk {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  opacity: 0.7;
-  margin-bottom: 3px;
+  opacity: 0.72;
+  margin-bottom: 4px;
 }
 .mv {
-  font-size: 33px;
+  font-size: 39px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -567,23 +581,23 @@ a {
 /* 昨日との差はバッジ表示（枠色の上でも見やすいように濃色のピル） */
 /* 昨日との差はバッジ表示（枠色の上でも見やすい濃色ピル＋明色テキスト） */
 .mdiff {
-  margin-top: 8px;
+  margin-top: 9px;
   font-size: 10.5px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   padding: 2px 9px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.09);
   line-height: 1.5;
 }
 .mdiff.up {
-  color: #ffb4b0;
+  color: #ff9a94;
 }
 .mdiff.down {
-  color: #a9d8ff;
+  color: #93c8ff;
 }
 .mdiff.flat {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* カード内の夜の推移グラフ */
