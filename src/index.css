@@ -288,6 +288,24 @@ a {
   }
 }
 
+/* グラフの描画は左→右ではなく下→上に現れる（clip-path で下から開く） */
+@keyframes chartUp {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.nchart-up {
+  animation: chartUp 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nchart-up {
+    animation: none;
+  }
+}
+
 /* --- セクション見出し --- */
 .sec-head {
   display: flex;
@@ -763,9 +781,9 @@ a {
 }
 .frow {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
   text-align: left;
   background: var(--surface);
@@ -804,68 +822,56 @@ a {
 .frow-dow.sun {
   color: #fb7185;
 }
-/* 気温・湿度を2行（アイコン付き）。列を揃えて整える。 */
-.frow-lines {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
+/* 気温・湿度を1行（アイコン付き）で。high | 区切り線 | low。 */
+.frow-metrics {
+  display: flex;
   align-items: center;
-  column-gap: 8px;
-  row-gap: 6px;
+  flex-wrap: wrap;
+  gap: 6px 18px;
   justify-self: start;
   min-width: 0;
 }
-.fl-ic {
+.fg {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+.fg-ic {
   display: inline-flex;
 }
-.fl-ic.temp {
+.fg.temp .fg-ic {
   color: var(--temp-light);
 }
-.fl-ic.humid {
+.fg.humid .fg-ic {
   color: var(--humid-light);
 }
-.fl-hi {
-  justify-self: end;
+.fg-hi {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
 }
-.fl-hi.temp {
+.fg.temp .fg-hi {
   color: var(--temp-light);
 }
-.fl-hi.humid {
+.fg.humid .fg-hi {
   color: var(--humid-light);
 }
-.fl-lo {
-  justify-self: start;
+.fg-lo {
   font-size: 14px;
   font-weight: 700;
   color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
 }
-.fl-hi small,
-.fl-lo small {
+.fg-hi small,
+.fg-lo small {
   font-size: 0.52em;
   font-weight: 700;
   margin-left: 1px;
 }
-.fl-sep {
-  justify-self: center;
+.fg-sep {
   width: 1px;
   height: 14px;
   background: var(--border);
-}
-/* ミニ推移グラフ（天気アイコンの左） */
-.frow-mini {
-  flex: 0 0 auto;
-  width: 72px;
-  height: 38px;
-}
-.mini-trend {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
 }
 /* 天気アイコン（右端） */
 .frow-wx {

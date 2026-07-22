@@ -103,6 +103,7 @@ export default function NightChart({
           </span>
         </div>
       )}
+      <div className="nchart-up">
       <ResponsiveContainer width="100%" height={compact ? 172 : 236}>
         <ComposedChart data={data} margin={{ top: 8, right: 4, bottom: 24, left: 0 }}>
           <defs>
@@ -169,10 +170,7 @@ export default function NightChart({
             dataKey="humidity"
             stroke="none"
             fill="url(#humidFill)"
-            isAnimationActive
-            animationBegin={150}
-            animationDuration={1000}
-            animationEasing="ease-out"
+            isAnimationActive={false}
             connectNulls
           />
           <Area
@@ -181,14 +179,11 @@ export default function NightChart({
             dataKey="temp"
             stroke="none"
             fill="url(#tempFill)"
-            isAnimationActive
-            animationBegin={150}
-            animationDuration={1000}
-            animationEasing="ease-out"
+            isAnimationActive={false}
             connectNulls
           />
 
-          {/* 発光する曲線（左から描かれる） */}
+          {/* 発光する曲線（下から立ち上がるアニメは親 .nchart-up で行う） */}
           <Line
             yAxisId="humid"
             type="monotone"
@@ -199,10 +194,7 @@ export default function NightChart({
             dot={false}
             activeDot={{ r: 4.5, fill: HUMID, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
-            isAnimationActive
-            animationBegin={0}
-            animationDuration={1150}
-            animationEasing="ease-in-out"
+            isAnimationActive={false}
             style={{ filter: 'url(#lineGlow)' }}
           />
           <Line
@@ -215,14 +207,12 @@ export default function NightChart({
             dot={false}
             activeDot={{ r: 4.5, fill: TEMP, stroke: '#0a1120', strokeWidth: 2 }}
             connectNulls
-            isAnimationActive
-            animationBegin={0}
-            animationDuration={1150}
-            animationEasing="ease-in-out"
+            isAnimationActive={false}
             style={{ filter: 'url(#lineGlow)' }}
           />
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
     </section>
   )
 }
