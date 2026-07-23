@@ -78,15 +78,14 @@
       .thermo-bulb {
         fill: var(--boot-merc);
       }
+      /* 水銀（ゲージ）は読込%に合わせて下から上へ伸びる。
+         --fill（0〜1）を JS が更新し、なめらかに上昇する。 */
       .thermo-merc {
         fill: var(--boot-merc);
         transform-box: fill-box;
         transform-origin: 50% 100%;
-        animation: gauge 2.3s ease-in-out infinite;
-      }
-      @keyframes gauge {
-        0%, 100% { transform: scaleY(0.24); }
-        50% { transform: scaleY(1); }
+        transform: scaleY(var(--fill, 0.08));
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
       /* 管とバルブの輪郭 */
       .thermo-outline {
@@ -111,7 +110,8 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .thermo-merc { animation: none; transform: scaleY(0.68); }
+        /* モーション低減時は上昇アニメを省き、%に応じた高さへ即座に反映。 */
+        .thermo-merc { transition: none; }
       }
     </style>
   </head>
@@ -161,8 +161,11 @@
         var MIN_MS = 2000
         var startedAt = Date.now()
         var el = document.getElementById('boot-pct')
+        var merc = document.querySelector('.thermo-merc')
         function render() {
           if (el) el.textContent = 'Loading... ' + Math.round(pct) + '%'
+          // 水銀の高さ（scaleY 0.08〜1.0）を読込%に合わせて上昇させる。
+          if (merc) merc.style.setProperty('--fill', (0.08 + 0.92 * (pct / 100)).toFixed(3))
         }
         var iv = setInterval(function () {
           if (finished) return
