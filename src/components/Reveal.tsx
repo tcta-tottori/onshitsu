@@ -24,7 +24,8 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (reduceMotion()) {
+    // モーション低減設定・IntersectionObserver 非対応時は即表示（データが消えないよう保険）。
+    if (reduceMotion() || typeof IntersectionObserver === 'undefined') {
       setShown(true)
       return
     }
@@ -41,7 +42,12 @@ export default function Reveal({
       { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
     )
     io.observe(el)
-    return () => io.disconnect()
+    // 保険：万一 observer が発火しなくても、一定時間後には必ず表示する。
+    const fallback = window.setTimeout(() => setShown(true), 1200)
+    return () => {
+      io.disconnect()
+      window.clearTimeout(fallback)
+    }
   }, [])
 
   return (

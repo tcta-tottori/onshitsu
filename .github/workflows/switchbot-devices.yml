@@ -1,0 +1,24 @@
+name: SwitchBot devices
+
+# SwitchBot に登録済みデバイスの一覧（deviceId / deviceType / deviceName）を
+# Actions のログに表示する。SWITCHBOT_DEVICE_ID に設定する値を調べるために使う。
+# 事前に Secrets へ SWITCHBOT_TOKEN / SWITCHBOT_SECRET を登録し、手動実行すること。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: デバイス一覧を表示
+        env:
+          SWITCHBOT_TOKEN: ${{ secrets.SWITCHBOT_TOKEN }}
+          SWITCHBOT_SECRET: ${{ secrets.SWITCHBOT_SECRET }}
+        run: node scripts/switchbot-devices.mjs

@@ -71,12 +71,16 @@ function fourTicks(lo: number, hi: number): number[] {
 export default function NightChart({
   series,
   compact = false,
+  activeIndex,
 }: {
   series: NightSeries
   compact?: boolean
+  /** 現在時刻に当たる点の idx。指定時はその点を初期ハイライト（タップ相当の表示）。 */
+  activeIndex?: number | null
 }) {
   const { points } = series
   const data = points
+  const hasActive = activeIndex !== null && activeIndex !== undefined && activeIndex >= 0
 
   // 軸レンジ（気温・湿度とも4目盛で高さ位置を揃える）
   const temps = points.map((p) => p.temp).filter((v): v is number => v !== null)
@@ -160,7 +164,11 @@ export default function NightChart({
             axisLine={false}
             width={38}
           />
-          <Tooltip content={<WxTooltip />} cursor={{ stroke: AXIS_TXT, strokeDasharray: '3 3' }} />
+          <Tooltip
+            content={<WxTooltip />}
+            cursor={{ stroke: AXIS_TXT, strokeDasharray: '3 3' }}
+            defaultIndex={hasActive ? (activeIndex as number) : undefined}
+          />
 
           {/* 塗り（線は Line 側で描くので stroke なし）。下から立ち上がるように伸びる。 */}
           <Area
