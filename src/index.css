@@ -105,9 +105,9 @@ a {
   position: relative;
 }
 
-/* 気象データの更新目安（画面上部・右上） */
+/* 気象データの更新目安（画面右上に常時固定・スクロールしても消えない） */
 .data-stamp {
-  position: absolute;
+  position: fixed;
   top: calc(var(--safe-t) + 7px);
   right: 20px;
   z-index: 11;

@@ -8,7 +8,9 @@ name: SwitchBot poll
 # ※ 事前にリポジトリの Secrets に SWITCHBOT_TOKEN / SWITCHBOT_SECRET / SWITCHBOT_DEVICE_ID を登録すること。
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    # 15分間隔。ただし毎時0分などの高負荷帯は GitHub 側でスケジュールが
+    # 間引かれやすいため、あえて毎時 3/18/33/48 分にずらして起動率を上げる。
+    - cron: '3,18,33,48 * * * *'
   workflow_dispatch:
 
 # データ用ブランチへ push するため contents:write が必要。
