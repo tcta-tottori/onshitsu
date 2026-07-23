@@ -1,0 +1,61 @@
+name: SwitchBot poll
+
+# 15分ごとに SwitchBot 温湿度計の現在値を取得し、switchbot-data ブランチの
+# switchbot.json に蓄積する。サイトはこの JSON を raw.githubusercontent.com から読む。
+#
+# ※ schedule / workflow_dispatch は「デフォルトブランチ」上のワークフローのみ実行される。
+#   このファイルとスクリプトをデフォルトブランチにマージするまで定期実行は始まらない。
+# ※ 事前にリポジトリの Secrets に SWITCHBOT_TOKEN / SWITCHBOT_SECRET / SWITCHBOT_DEVICE_ID を登録すること。
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+# データ用ブランチへ push するため contents:write が必要。
+permissions:
+  contents: write
+
+# 取得の重複実行を避ける（進行中はキャンセルしない）。
+concurrency:
+  group: switchbot-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 既存データを switchbot-data ブランチから読み込む
+        run: |
+          git fetch origin switchbot-data --depth=1 || true
+          if git rev-parse --verify origin/switchbot-data >/dev/null 2>&1; then
+            git show origin/switchbot-data:switchbot.json > switchbot.json 2>/dev/null || echo '[]' > switchbot.json
+          else
+            echo '[]' > switchbot.json
+          fi
+
+      - name: SwitchBot から取得して追記
+        env:
+          SWITCHBOT_TOKEN: ${{ secrets.SWITCHBOT_TOKEN }}
+          SWITCHBOT_SECRET: ${{ secrets.SWITCHBOT_SECRET }}
+          SWITCHBOT_DEVICE_ID: ${{ secrets.SWITCHBOT_DEVICE_ID }}
+        run: node scripts/switchbot-poll.mjs switchbot.json
+
+      - name: switchbot-data ブランチへ保存（JSONのみ・履歴は肥大化させない）
+        env:
+          GIT_AUTHOR_NAME: switchbot-bot
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: switchbot-bot
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          export GIT_INDEX_FILE="$(mktemp)"
+          BLOB=$(git hash-object -w switchbot.json)
+          git update-index --add --cacheinfo 100644,"$BLOB",switchbot.json
+          TREE=$(git write-tree)
+          COMMIT=$(git commit-tree "$TREE" -m "chore(switchbot): update reading")
+          git push -f origin "$COMMIT:refs/heads/switchbot-data"
+          rm -f "$GIT_INDEX_FILE"

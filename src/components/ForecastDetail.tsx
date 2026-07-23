@@ -1,5 +1,5 @@
 // 明日以降の1日をタップしたときの詳細ポップアップ。
-// その夜（19〜翌6時）の推移グラフと、毎時（気温・湿度・降水確率・天気）を表示する。
+// その夜（19〜翌7時）の推移グラフと、毎時（気温・湿度・降水確率・天気）を表示する。
 import { useEffect } from 'react'
 import { Droplets, Thermometer, Umbrella, X } from 'lucide-react'
 import { weatherFromCode } from '../lib/weatherCode'
@@ -46,7 +46,7 @@ export default function ForecastDetail({
             <span className="modal-date">
               {row.dateObj.getMonth() + 1}月{row.dateObj.getDate()}日（{DOW[dow]}）
             </span>
-            <span className="modal-sub">夜 19時〜翌6時・{label}</span>
+            <span className="modal-sub">夜 19時〜翌7時・{label}</span>
           </div>
           <button className="modal-close" onClick={onClose} aria-label="閉じる">
             <X size={20} strokeWidth={2.4} />

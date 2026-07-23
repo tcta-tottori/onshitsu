@@ -6,7 +6,7 @@ import { getNightWindow, minMax, nightIndices, parseHourly, type NightWindow } f
 export interface NightPoint {
   /** 時刻ラベル（0-23 の時） */
   hour: number
-  /** ソート＆ツールチップ用の連番（17→6を0..13） */
+  /** ソート＆ツールチップ用の連番（19→7を0..12） */
   idx: number
   temp: number | null
   humidity: number | null
@@ -54,7 +54,7 @@ export function deriveNight(
   }
 }
 
-/** ③ テーブル用：翌日以降の「夜（19〜翌6時）」1行 */
+/** ③ テーブル用：翌日以降の「夜（19〜翌7時）」1行 */
 export interface NightForecastRow {
   dateObj: Date
   weatherCode: number | null
@@ -62,7 +62,7 @@ export interface NightForecastRow {
   tempLow: number | null
   humHigh: number | null
   humLow: number | null
-  /** その夜（19〜翌6時）の毎時系列（ミニグラフ・詳細ポップアップ用） */
+  /** その夜（19〜翌7時）の毎時系列（ミニグラフ・詳細ポップアップ用） */
   series: NightSeries
   /** ミニグラフ用の気温・湿度配列（series 由来） */
   temps: Array<number | null>
@@ -70,7 +70,7 @@ export interface NightForecastRow {
 }
 
 /**
- * 翌夜以降の「夜（19〜翌6時）」の気温・湿度の上下限を count 日分作る。
+ * 翌夜以降の「夜（19〜翌7時）」の気温・湿度の上下限を count 日分作る。
  * 上下限・天気とも夜の期間の hourly のみから算出（日中は含めない）。
  * データ範囲外の夜はスキップ（自然に日数が制限される）。
  */
@@ -110,7 +110,7 @@ export function todayStr(now: Date = new Date()): string {
   return `${y}-${m}-${d}`
 }
 
-/** ① ヒーロー用：ある夜（19〜翌6時）の気温・湿度の上下限と、前夜との差、推移系列 */
+/** ① ヒーロー用：ある夜（19〜翌7時）の気温・湿度の上下限と、前夜との差、推移系列 */
 export interface NightCard {
   /** 夜の開始日（＝その晩の日付） */
   dateObj: Date
@@ -203,7 +203,7 @@ function windowWeatherCode(data: WeatherData, startMs: number, endMs: number): n
 }
 
 /**
- * 今夜を起点に count 日分の「夜（19〜翌6時）」サマリーを作る。
+ * 今夜を起点に count 日分の「夜（19〜翌7時）」サマリーを作る。
  * 上下限は夜の期間の hourly のみから算出（日中データは含めない）。
  * 差分は前夜（−24h）との比較。
  */
