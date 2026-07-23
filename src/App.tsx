@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { fetchWeather, type Location, type WeatherData } from './api/weather'
 import { fetchJmaReportDatetime } from './api/jma'
-import { fetchSwitchbotHistory, type SwitchbotReading } from './api/switchbot'
+import { fetchSwitchbotHistory, pollSwitchbot, type SwitchbotReading } from './api/switchbot'
 import { DEFAULT_LOCATION } from './lib/locations'
 import { deriveNightCards, deriveNightForecast } from './lib/derive'
 import { adviseAircon } from './lib/aircon'
@@ -77,9 +77,10 @@ export default function App() {
   }, [location, reloadKey])
 
   // 自宅（SwitchBot）の温湿度履歴を取得（添え物。未設定・失敗ならカード非表示）。
+  // 中継 Worker 設定時は poll=true で「開いたときにその場で取得・記録」する。
   useEffect(() => {
     const ctrl = new AbortController()
-    fetchSwitchbotHistory(ctrl.signal)
+    fetchSwitchbotHistory(ctrl.signal, true)
       .then((rows) => {
         if (!ctrl.signal.aborted) setIndoor(rows)
       })
@@ -88,6 +89,12 @@ export default function App() {
       })
     return () => ctrl.abort()
   }, [reloadKey])
+
+  // 「更新」ボタン用：その場で現在値を取得・記録して履歴を更新する。
+  const refreshIndoor = useCallback(async () => {
+    const rows = await pollSwitchbot()
+    setIndoor(rows)
+  }, [])
 
   const derived = useMemo(() => {
     if (state.status !== 'ready') return null
@@ -155,7 +162,7 @@ export default function App() {
 
             {indoor.length > 0 && (
               <Reveal>
-                <IndoorCard readings={indoor} />
+                <IndoorCard readings={indoor} onRefresh={refreshIndoor} />
               </Reveal>
             )}
 

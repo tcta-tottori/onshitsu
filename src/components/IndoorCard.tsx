@@ -1,6 +1,7 @@
 // 自宅（SwitchBot 温湿度計）の現在値カード。タップで履歴ポップアップを開く。
-import { useState } from 'react'
-import { ChevronRight, Droplets, Home, Thermometer } from 'lucide-react'
+// 「更新」ボタンで、その場で最新値を取得・記録する（中継 Worker 経由）。
+import { type MouseEvent, useState } from 'react'
+import { ChevronRight, Droplets, Home, RefreshCw, Thermometer } from 'lucide-react'
 import type { SwitchbotReading } from '../api/switchbot'
 import IndoorDetail from './IndoorDetail'
 
@@ -15,18 +16,46 @@ function ago(t: number, now: number): string {
   return `${Math.round(h / 24)}日前`
 }
 
-export default function IndoorCard({ readings }: { readings: SwitchbotReading[] }) {
+export default function IndoorCard({
+  readings,
+  onRefresh,
+}: {
+  readings: SwitchbotReading[]
+  onRefresh?: () => Promise<void>
+}) {
   const [open, setOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   if (readings.length === 0) return null
 
   const latest = readings[readings.length - 1]
   const nowSec = Math.floor(Date.now() / 1000)
 
+  async function handleRefresh(e: MouseEvent) {
+    e.stopPropagation()
+    if (refreshing || !onRefresh) return
+    setRefreshing(true)
+    try {
+      await onRefresh()
+    } catch {
+      /* 取得失敗時は無視（表示は保持） */
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   return (
     <>
-      <button
+      <div
         className="card indoor"
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setOpen(true)
+          }
+        }}
         aria-label="リビングの気温・湿度。タップで履歴を表示"
       >
         <img
@@ -42,6 +71,22 @@ export default function IndoorCard({ readings }: { readings: SwitchbotReading[] 
           </span>
           <span className="indoor-title">リビング</span>
           <span className="indoor-ago">{ago(latest.t, nowSec)}</span>
+          {onRefresh && (
+            <button
+              type="button"
+              className="indoor-refresh"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label="最新の値に更新"
+            >
+              <RefreshCw
+                size={13}
+                strokeWidth={2.6}
+                className={refreshing ? 'spin' : undefined}
+              />
+              更新
+            </button>
+          )}
           <ChevronRight className="indoor-chev" size={18} strokeWidth={2.4} />
         </div>
 
@@ -62,7 +107,7 @@ export default function IndoorCard({ readings }: { readings: SwitchbotReading[] 
             </span>
           </div>
         </div>
-      </button>
+      </div>
 
       {open && <IndoorDetail readings={readings} onClose={() => setOpen(false)} />}
     </>

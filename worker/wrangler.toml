@@ -1,0 +1,15 @@
+# Cloudflare Worker 設定（wrangler CLI でデプロイする場合に使用）。
+# ダッシュボードから手動で作る場合はこのファイルは不要（README 参照）。
+name = "onshitsu-switchbot"
+main = "switchbot-worker.js"
+compatibility_date = "2024-11-01"
+
+# KV 名前空間。`wrangler kv namespace create HISTORY` で作成し、出力された id をここに貼る。
+kv_namespaces = [
+  { binding = "HISTORY", id = "REPLACE_WITH_KV_NAMESPACE_ID" }
+]
+
+# Secrets はコミットしない。以下のコマンドで登録する:
+#   wrangler secret put SWITCHBOT_TOKEN
+#   wrangler secret put SWITCHBOT_SECRET
+#   wrangler secret put SWITCHBOT_DEVICE_ID
