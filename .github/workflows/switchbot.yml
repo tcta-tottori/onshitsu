@@ -52,7 +52,9 @@ jobs:
           GIT_COMMITTER_NAME: switchbot-bot
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          export GIT_INDEX_FILE="$(mktemp)"
+          # GIT_INDEX_FILE には「まだ存在しないパス」を渡す（空ファイルだと
+          # git が壊れたインデックスと見なして "index file smaller than expected" になる）。
+          export GIT_INDEX_FILE="$(mktemp -u)"
           BLOB=$(git hash-object -w switchbot.json)
           git update-index --add --cacheinfo 100644,"$BLOB",switchbot.json
           TREE=$(git write-tree)
