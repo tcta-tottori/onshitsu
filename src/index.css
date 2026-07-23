@@ -841,13 +841,25 @@ a {
   text-align: left;
   margin-top: 4px;
   cursor: pointer;
-  border-color: color-mix(in srgb, var(--temp) 22%, var(--border));
-  background: linear-gradient(160deg, color-mix(in srgb, var(--temp) 8%, var(--surface)), var(--surface));
+  /* SwitchBot ブランドの赤（#D83739）をカード背景に。文字は白ベース。 */
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #d83739;
+  color: #ffffff;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .card.indoor:active {
   transform: scale(0.99);
 }
+
+/* カード中央上部の SwitchBot ロゴ（背景の赤に溶け込み、白い文字が浮かぶ） */
+.indoor-brand {
+  display: block;
+  height: 16px;
+  width: auto;
+  margin: 0 auto 12px;
+  pointer-events: none;
+}
+
 .indoor-head {
   display: flex;
   align-items: center;
@@ -861,23 +873,24 @@ a {
   border-radius: 9px;
   align-items: center;
   justify-content: center;
-  background: var(--temp-soft);
-  color: var(--temp-light);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   flex: 0 0 auto;
 }
 .indoor-title {
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.02em;
+  color: #ffffff;
 }
 .indoor-ago {
   margin-left: auto;
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.82);
 }
 .indoor-chev {
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.85);
   flex: 0 0 auto;
 }
 .indoor-metrics {
@@ -892,12 +905,7 @@ a {
   justify-content: center;
   gap: 8px;
   font-variant-numeric: tabular-nums;
-}
-.indoor-metric.temp {
-  color: var(--temp-light);
-}
-.indoor-metric.humid {
-  color: var(--humid-light);
+  color: #ffffff;
 }
 .indoor-metric > svg {
   flex: 0 0 auto;
@@ -911,31 +919,12 @@ a {
   font-size: 14px;
   font-weight: 700;
   margin-left: 2px;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.85);
 }
 .indoor-sep {
   width: 1px;
   align-self: stretch;
-  background: var(--border);
-}
-.indoor-foot {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
-}
-
-/* カード右下の SwitchBot ロゴ（データ提供元の目印） */
-.indoor-brand {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  height: 13px;
-  width: auto;
-  border-radius: 3px;
-  opacity: 0.85;
-  pointer-events: none;
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* 履歴ポップアップの期間タブ */

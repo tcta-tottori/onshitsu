@@ -29,6 +29,13 @@ export default function IndoorCard({ readings }: { readings: SwitchbotReading[] 
         onClick={() => setOpen(true)}
         aria-label="リビングの気温・湿度。タップで履歴を表示"
       >
+        <img
+          className="indoor-brand"
+          src={`${import.meta.env.BASE_URL}switchbot.png`}
+          alt="SwitchBot"
+          aria-hidden="true"
+        />
+
         <div className="indoor-head">
           <span className="indoor-ic">
             <Home size={16} strokeWidth={2.2} />
@@ -55,15 +62,6 @@ export default function IndoorCard({ readings }: { readings: SwitchbotReading[] 
             </span>
           </div>
         </div>
-
-        <div className="indoor-foot">タップで過去の推移を見る</div>
-
-        <img
-          className="indoor-brand"
-          src={`${import.meta.env.BASE_URL}switchbot.png`}
-          alt="SwitchBot"
-          aria-hidden="true"
-        />
       </button>
 
       {open && <IndoorDetail readings={readings} onClose={() => setOpen(false)} />}
